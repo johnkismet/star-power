@@ -1,0 +1,17 @@
+Example message: "Shoutout to @Missi for the help! :star-power:"
+
+Commands:
+!help - Display this help message
+!stars - Show how many stars you have in your account
+!leaderboard - Display the people with the top 5 stars and the top 5 star-power philanthropists
+
+General flow:
+1. User sends a message that includes :star-power:
+2. Bot receives message and checks:
+    - How many users were mentioned (@)
+    - How many stars were sent
+    - If sender has that many stars (bail out if not)
+    - If usersMentioned > 1 check that the amount of stars sent % usersMentioned == 0 to split evenly (bail out if not)
+        (https://codepen.io/ewwjohn/pen/LYbwoJO)
+3a. If sender doesn't have enough send a failure message to channel (Or DM them)
+3b. If sender has enough then take away starsSent from sender and add starsSent to user(s)

@@ -5,6 +5,8 @@ import { connectToMongo, handleStar } from "./backend/main";
 const { WebClient } = require("@slack/web-api");
 const { createEventAdapter } = require("@slack/events-api");
 const port = 3000;
+const emoji = ":star-power:";
+const prefix = "!";
 
 const slackEvents = createEventAdapter(process.env.SIGNING_SECRET);
 const slackClient = new WebClient(process.env.SLACK_TOKEN);
@@ -25,7 +27,7 @@ slackEvents.on("app_mention", (event) => {
 
 slackEvents.on("message", (event) => {
 	let message = event.text;
-	if (message.includes(":star-power:")) {
+	if (message.includes(emoji)) {
 		slackClient.chat.postMessage({
 			channel: event.channel,
 			text: "You said the thing!!!",
