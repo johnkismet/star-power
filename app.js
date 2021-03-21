@@ -20,6 +20,13 @@ slackEvents.on("app_mention", (event) => {
 	})();
 });
 
+slackEvents.on("message", (event) => {
+	let message = event.text;
+	if (message.includes(":star-power:")) {
+		console.log(`I've been activated!`);
+	}
+});
+
 slackEvents.on("error", console.error);
 
 slackEvents.start(port).then(() => {

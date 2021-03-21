@@ -1,3 +1,0 @@
-export const SIGNING_SECRET = "ec667049ae5a1344c6211c5f8a0c3f93";
-export const SLACK_TOKEN =
-	"xoxb-1295229893043-1906408938336-N189neclJJ4IrCJrafGls0uZ";
