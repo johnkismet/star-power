@@ -1,4 +1,7 @@
 require("dotenv").config();
+
+import { connectToMongo, handleStar } from "./backend/main";
+
 const { WebClient } = require("@slack/web-api");
 const { createEventAdapter } = require("@slack/events-api");
 const port = 3000;
@@ -34,4 +37,5 @@ slackEvents.on("error", console.error);
 
 slackEvents.start(port).then(() => {
 	console.log(`Server started on port ${port}!`);
+	connectToMongo();
 });
