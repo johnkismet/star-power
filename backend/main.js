@@ -62,17 +62,32 @@ function takeStars(username, amount) {
 		}
 		user.stars -= amount;
 		user.save();
+		console.log(`${username}'s new balance: ${user.stars}`);
+	});
+}
+
+function giveStars(username, amount) {
+	User.findOne({ username: username }, (err, user) => {
+		if (!user) {
+			console.log("User doesn't exist. How'd you do this?");
+		}
+		if (err) {
+			console.log(err);
+			return;
+		}
+		user.stars += amount;
+		user.save();
+		console.log(`${username}'s new balance: ${user.stars}`);
 	});
 }
 
 export function handleTransaction(sender, receiver, starsSent) {
 	takeStars(sender, starsSent);
-	let starsToGive;
 	if (receiver.length > 1) {
-		starsToGive = starsSent / receiver.length;
+		starsSent = starsSent / receiver.length;
 	}
 	for (let user of receiver) {
 		checkIfUser(user);
-		giveStars(user, starsToGive);
+		giveStars(user, starsSent);
 	}
 }

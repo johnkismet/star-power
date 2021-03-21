@@ -46,12 +46,14 @@ slackEvents.on("message", (event) => {
 		}
 
 		// check to make sure user has enough stars
+		let flag = false;
 		userHasEnoughStars(sender, starsSent).then((userHasEnough) => {
 			if (!userHasEnough) {
 				channel.postMessage({
 					channel: event.channel,
 					text: "You don't have enough stars!",
 				});
+				flag = true;
 				return;
 			}
 		});
@@ -66,8 +68,18 @@ slackEvents.on("message", (event) => {
 				return;
 			}
 		}
-
-		handleTransaction(sender, usersMentioned, starsSent);
+		let sanitizedUsers = [];
+		for (let user of usersMentioned) {
+			if (user[0] === "@") {
+				user = user.substring(1);
+				sanitizedUsers.push(user);
+			}
+		}
+		setTimeout(() => {
+			if (flag === false) {
+				handleTransaction(sender, sanitizedUsers, starsSent);
+			}
+		}, 2000);
 	}
 });
 
