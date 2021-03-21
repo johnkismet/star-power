@@ -5,6 +5,9 @@ Commands:
 !stars - Show how many stars you have in your account
 !leaderboard - Display the people with the top 5 stars and the top 5 star-power philanthropists
 
+Adding users to DB:
+1. On any message/reply in thread check if user is in DB. If not, add them and give 2 stars.
+
 General flow:
 1. User sends a message that includes :star-power:
 2. Bot receives message and checks:
