@@ -5,6 +5,7 @@ import {
 	handleStar,
 	checkIfUser,
 	userHasEnoughStars,
+	handleTransaction,
 } from "./backend/main";
 
 const { WebClient } = require("@slack/web-api");
@@ -28,22 +29,35 @@ slackEvents.on("message", (event) => {
 	let message = event.text;
 	let sender = event.user;
 	checkIfUser(sender);
+	// console.log(message);
 
 	if (message.includes(emoji)) {
 		let starsSent = message.match(/:star-power:/gi).length;
-		let usersMentioned = message.split("@").length - 1;
+		let usersMentioned = message.match(/@\w+/gm);
 		let channel = slackClient.chat;
-		
-		if (!userHasEnoughStars(sender, starsSent)) {
+
+		if (!usersMentioned) {
 			channel.postMessage({
 				channel: event.channel,
-				text: "You don't have enough stars!",
+				text:
+					"I can't give any stars because you didn't @ anyone in your shoutout",
 			});
 			return;
 		}
 
+		// check to make sure user has enough stars
+		userHasEnoughStars(sender, starsSent).then((userHasEnough) => {
+			if (!userHasEnough) {
+				channel.postMessage({
+					channel: event.channel,
+					text: "You don't have enough stars!",
+				});
+				return;
+			}
+		});
+
 		// Check if there is an even way to split stars with multiple people
-		if (usersMentioned > 1) {
+		if (usersMentioned.length > 1) {
 			if (starsSent % usersMentioned !== 0) {
 				channel.postMessage({
 					channel: event.channel,
@@ -52,6 +66,8 @@ slackEvents.on("message", (event) => {
 				return;
 			}
 		}
+
+		handleTransaction(sender, usersMentioned, starsSent);
 	}
 });
 
