@@ -91,23 +91,60 @@ export function handleTransaction(sender, receiver, starsSent) {
 	}
 }
 
-export function showLeaderboard() {
-	User.find({}, function (err, users) {
-		let userMap = {};
+// export async function showLeaderboard() {
+// 	await User.find({}, function (err, users) {
+// 		let starsSorted = Object.entries(users).sort(
+// 			(a, b) => b[1].stars - a[1].stars
+// 		);
+// 		let philanthropistsSorted = Object.entries(users).sort(
+// 			(a, b) => b[1].amountGiven - a[1].amountGiven
+// 		);
+// 		let topPhils = [];
+// 		let topStars = [];
+// 		let maxCount = 5;
+// 		if (maxCount > starsSorted.length) {
+// 			maxCount = starsSorted.length;
+// 		}
+// 		for (let i = 0; i < maxCount; i++) {
+// 			let username = starsSorted[i][1].username;
+// 			let stars = starsSorted[i][1].stars;
+// 			let starEntry = `${username}: ${stars}`;
+// 			topStars.push(starEntry);
+// 			username = philanthropistsSorted[i][1].username;
+// 			let amount = philanthropistsSorted[i][1].amountGiven;
+// 			let philEntry = `${username}: ${amount}`;
+// 			topPhils.push(philEntry);
+// 		}
+// 		let leaderboard = [topPhils, topStars];
+// 		console.log(leaderboard);
+// 		return leaderboard;
+// 	});
 
-		users.forEach(function (user) {
-			userMap[user._id] = user;
-		});
-		let sortedStars = Object.values(userMap);
-		let top = Math.max.apply(
-			Math,
-			sortedStars.map(function (o) {
-				return o.stars;
-			})
-		);
-		console.log(top);
-		// for (const value of Object.values(userMap)) {
-		// 	console.log(value);
-		// }
-	});
+export async function showLeaderboard() {
+	let users = await User.find({});
+	let starsSorted = Object.entries(users).sort(
+		(a, b) => b[1].stars - a[1].stars
+	);
+	let philanthropistsSorted = Object.entries(users).sort(
+		(a, b) => b[1].amountGiven - a[1].amountGiven
+	);
+	let topPhils = [];
+	let topStars = [];
+	let maxCount = 5;
+	if (maxCount > starsSorted.length) {
+		maxCount = starsSorted.length;
+	}
+	for (let i = 0; i < maxCount; i++) {
+		let username = starsSorted[i][1].username;
+		let stars = starsSorted[i][1].stars;
+		let starEntry = `<@${username}>: ${stars}`;
+		topStars.push(starEntry);
+		username = philanthropistsSorted[i][1].username;
+		let amount = philanthropistsSorted[i][1].amountGiven;
+		let philEntry = `<@${username}>: ${amount}`;
+		topPhils.push(philEntry);
+	}
+	let leaderboard = [topPhils, topStars];
+	// console.log(leaderboard);
+	return leaderboard;
 }

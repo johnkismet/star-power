@@ -29,7 +29,7 @@ slackEvents.on("message", (event) => {
 	let message = event.text;
 	let sender = event.user;
 	if (message[0] === prefix) {
-		handleMessage(message);
+		handleMessage(message, slackClient, event);
 		return;
 	}
 	checkIfUser(sender);
