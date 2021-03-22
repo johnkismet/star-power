@@ -18,17 +18,10 @@ const prefix = "!";
 const slackEvents = createEventAdapter(process.env.SIGNING_SECRET);
 const slackClient = new WebClient(process.env.SLACK_TOKEN);
 
-// slackEvents.on("app_mention", (event) => {
-// 	slackClient.chat.postMessage({
-// 		channel: event.channel,
-// 		text: `Help Message`,
-// 	});
-// });
-
-function postEphemeralMsg(text, event) {
+function postEphemeralMsg(text, event, user = event.user) {
 	slackClient.chat.postEphemeral({
 		channel: event.channel,
-		user: event.user,
+		user: user,
 		text: text,
 	});
 }
@@ -48,11 +41,7 @@ async function messageMentionedUsers(userList, event) {
 		let message =
 			"You got stars! " + userBalance + " DM me !help for more features";
 		console.log(message);
-		slackClient.chat.postEphemeral({
-			channel: event.channel,
-			text: message,
-			user: user,
-		});
+		postEphemeralMsg(message, event, user);
 	}
 }
 
@@ -61,87 +50,92 @@ slackEvents.on("message", (event) => {
 	let message = event.text;
 	let sender = event.user;
 	checkIfUser(sender);
-	if (event.channel_type === "im") {
-		if (message[0] === prefix) {
-			handleMessage(message, slackClient, event);
-			return;
-		}
-	}
-	// console.log(message);
-	if (event.channel_type === "channel") {
-		if (message.includes(emoji)) {
-			let starsSent = message.match(/:star-power:/gi).length;
-			let usersMentioned = message.match(/@\w+/gm);
-			let channel = slackClient.chat;
 
-			if (!usersMentioned) {
-				postEphemeralMsg(
-					"I can't give any stars because you didn't @ anyone in your shoutout",
-					event
-				);
+	switch (event.channel_type) {
+		case "im":
+			if (message[0] === prefix) {
+				handleMessage(message, slackClient, event);
 				return;
 			}
-			for (let x of usersMentioned) {
-				if (x.includes(sender)) {
-					postEphemeralMsg("You can't send stars to yourself.", event);
-					return;
-				}
-				if (x.includes("U01SNC0TL9W")) {
-					postEphemeralMsg(
-						"Thanks, but no thanks - I don't have any use for stars",
-						event
-					);
-					return;
-				}
-			}
-			// check to make sure user has enough stars
-			let flag = false;
-			userHasEnoughStars(sender, starsSent).then((userHasEnough) => {
-				if (!userHasEnough) {
-					postEphemeralMsg(
-						"You don't have enough stars :( DM me and say !balance to see how many stars you have.",
-						event
-					);
-					flag = true;
-					return;
-				}
-			});
+			break;
+		case "channel":
+			if (message.includes(emoji)) {
+				let starsSent = message.match(/:star-power:/gi).length;
+				let usersMentioned = message.match(/@\w+/gm);
 
-			// Check if there is an even way to split stars with multiple people
-			if (usersMentioned.length > 1) {
-				if (starsSent % usersMentioned.length !== 0) {
+				// Guard for no mentioned users
+				if (!usersMentioned) {
 					postEphemeralMsg(
-						`I can't split the stars evenly between all the mentioned users, please try again`,
+						"I can't give any stars because you didn't @ anyone in your shoutout",
 						event
 					);
 					return;
 				}
-			}
-			let sanitizedUsers = [];
-			for (let user of usersMentioned) {
-				if (user[0] === "@") {
-					user = user.substring(1);
-					sanitizedUsers.push(user);
+				// Guard for trying to give yourself/bot stars
+				for (let x of usersMentioned) {
+					if (x.includes(sender)) {
+						postEphemeralMsg("You can't send stars to yourself.", event);
+						return;
+					}
+					if (x.includes("U01SNC0TL9W")) {
+						postEphemeralMsg(
+							"Thanks, but no thanks - I don't have any use for stars",
+							event
+						);
+						return;
+					}
 				}
-			}
-			setTimeout(() => {
-				if (flag === false) {
-					handleTransaction(sender, sanitizedUsers, starsSent).then(
-						(success) => {
-							if (success) {
-								messageSender(event);
-								messageMentionedUsers(sanitizedUsers, event);
-							} else {
-								postEphemeralMsg(
-									`I couldn't find one of the users you mentioned.`,
-									event
-								);
-							}
+
+				// Check if there is an even way to split stars with multiple people
+				if (usersMentioned.length > 1) {
+					if (starsSent % usersMentioned.length !== 0) {
+						postEphemeralMsg(
+							`I can't split the stars evenly between all the mentioned users, please try again`,
+							event
+						);
+						return;
+					}
+				}
+
+				// check to make sure user has enough stars
+				let flag = false;
+
+				let sanitizedUsers = [];
+				for (let user of usersMentioned) {
+					if (user[0] === "@") {
+						user = user.substring(1);
+						sanitizedUsers.push(user);
+					}
+				}
+				userHasEnoughStars(sender, starsSent)
+					.then((userHasEnough) => {
+						if (!userHasEnough) {
+							postEphemeralMsg(
+								"You don't have enough stars :( DM me and say !balance to see how many stars you have.",
+								event
+							);
+							return false;
 						}
-					);
-				}
-			}, 1000);
-		}
+						return true;
+					})
+					.then((userHasEnough) => {
+						if (!userHasEnough) return;
+						handleTransaction(sender, sanitizedUsers, starsSent).then(
+							(success) => {
+								if (success) {
+									messageSender(event);
+									messageMentionedUsers(sanitizedUsers, event);
+								} else {
+									postEphemeralMsg(
+										`I couldn't find one of the users you mentioned.`,
+										event
+									);
+								}
+							}
+						);
+					});
+			}
+			break;
 	}
 });
 
