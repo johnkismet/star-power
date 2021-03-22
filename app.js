@@ -39,7 +39,7 @@ async function messageMentionedUsers(userList, event) {
 	for (let user of userList) {
 		let userBalance = await checkBalance(user);
 		let message =
-			`You got stars from <@${event.user}>! ` +
+			`You got a shoutout from <@${event.user}>! ` +
 			userBalance +
 			" DM me !help for more features";
 		console.log(message);
