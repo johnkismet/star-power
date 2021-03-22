@@ -22,3 +22,6 @@ General flow:
 handleTransaction:
 1. For loop through receiver array, make sure each one is a user.
 2. Check how many receivers. if one, then take away starsSent from sender and give starsSent to receiver
+
+IDEAS:
+Make it so people can react to messages with :star-power: to give their stars to the person as well as
