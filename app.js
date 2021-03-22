@@ -159,8 +159,9 @@ slackEvents.on("message", (event) => {
 });
 
 slackEvents.on("reaction_added", (event) => {
-	console.log(event);
+	// Guards for adding emojis on your posts/bot posts
 	if (event.user === event.item_user) return;
+	if ("U01SNC0TL9W" === event.item_user) return;
 	if (event.reaction === "star-power") {
 		giveStars(event.item_user, 1);
 		takeStars(event.user, 1);
@@ -168,8 +169,9 @@ slackEvents.on("reaction_added", (event) => {
 });
 
 slackEvents.on("reaction_removed", (event) => {
-	// console.log(event);
 	if (event.user === event.item_user) return;
+	if ("U01SNC0TL9W" === event.item_user) return;
+
 	if (event.reaction === "star-power") {
 		// third parameter to signify the function should decrement giveAmount
 		giveStars(event.user, 1, true);
