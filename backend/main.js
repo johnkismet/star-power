@@ -20,8 +20,6 @@ export function connectToMongo() {
 	}
 }
 
-export function handleStar() {}
-
 export function checkIfUser(username) {
 	if (username[0] === "@") {
 		username = username.substring(1);
@@ -60,6 +58,7 @@ function takeStars(username, amount) {
 		if (!user) {
 			console.log("User doesn't exist. How'd you do this?");
 		}
+		user.amountGiven += 1;
 		user.stars -= amount;
 		user.save();
 		console.log(`${username}'s new balance: ${user.stars}`);
@@ -90,4 +89,25 @@ export function handleTransaction(sender, receiver, starsSent) {
 		checkIfUser(user);
 		giveStars(user, starsSent);
 	}
+}
+
+export function showLeaderboard() {
+	User.find({}, function (err, users) {
+		let userMap = {};
+
+		users.forEach(function (user) {
+			userMap[user._id] = user;
+		});
+		let sortedStars = Object.values(userMap);
+		let top = Math.max.apply(
+			Math,
+			sortedStars.map(function (o) {
+				return o.stars;
+			})
+		);
+		console.log(top);
+		// for (const value of Object.values(userMap)) {
+		// 	console.log(value);
+		// }
+	});
 }

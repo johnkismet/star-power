@@ -2,11 +2,11 @@ require("dotenv").config();
 
 import {
 	connectToMongo,
-	handleStar,
 	checkIfUser,
 	userHasEnoughStars,
 	handleTransaction,
 } from "./backend/main";
+import handleMessage from "./handleMessage";
 
 const { WebClient } = require("@slack/web-api");
 const { createEventAdapter } = require("@slack/events-api");
@@ -17,17 +17,21 @@ const prefix = "!";
 const slackEvents = createEventAdapter(process.env.SIGNING_SECRET);
 const slackClient = new WebClient(process.env.SLACK_TOKEN);
 
-slackEvents.on("app_mention", (event) => {
-	slackClient.chat.postMessage({
-		channel: event.channel,
-		text: `Help Message`,
-	});
-});
+// slackEvents.on("app_mention", (event) => {
+// 	slackClient.chat.postMessage({
+// 		channel: event.channel,
+// 		text: `Help Message`,
+// 	});
+// });
 
 // TODO: Handle replies in thread
 slackEvents.on("message", (event) => {
 	let message = event.text;
 	let sender = event.user;
+	if (message[0] === prefix) {
+		handleMessage(message);
+		return;
+	}
 	checkIfUser(sender);
 	// console.log(message);
 
