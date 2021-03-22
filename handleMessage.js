@@ -4,6 +4,9 @@ export default function handleMessage(message, slackClient, event) {
 	let channel = slackClient.chat;
 	let usageMessage = `StarPower is a fun way to give praise to those who deserve it! In the #shoutouts channel just write your message to the person, make sure you @ them. And anywhere in the message send the star-power emoji to give them as many stars as you want (and can afford) \n
 	Example message: Shoutout to @JohnAnderson for making this! :star-power: :star-power: \n
+
+	BIG TIP: \n
+	You can also give people stars by reacting with the star-power emoji on a message! When you react to a message it sends a star to the poster's account and takes one from yours. \n
 	Usage: \n
 	!leaderboard - Displays the top 5 star earners and top 5 philanthropists \n
 	!balance - Shows you your star count and how many times you've given stars

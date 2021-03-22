@@ -53,27 +53,32 @@ export async function userHasEnoughStars(username, starsSent) {
 	return !(foundUser.stars < starsSent);
 }
 
-async function takeStars(username, amount) {
+export async function takeStars(username, amount, skip = false) {
 	let user = await User.findOne({ username: username });
 	if (!user) {
 		console.log("Couldn't take stars. User doesn't exist.");
 		return false;
 	}
-	user.amountGiven += amount;
+	// skip when removing a reaction since we have to take stars but don't want to increment amountGiven
+	if (!skip) {
+		user.amountGiven += amount;
+	}
 	user.stars -= amount;
 	user.save();
 	return user.stars;
 }
 
-export async function giveStars(username, amount) {
+export async function giveStars(username, amount, decrement = false) {
 	let user = await User.findOne({ username: username });
 	if (!user) {
 		console.log("Couldn't give stars. User doesn't exist.");
 		return false;
 	}
 	user.stars += amount;
+	if (decrement) {
+		user.amountGiven -= 1;
+	}
 	user.save();
-	console.log("gave stars :D");
 	return user.stars;
 }
 
@@ -113,12 +118,12 @@ export async function showLeaderboard() {
 	for (let i = 0; i < maxCount; i++) {
 		let username = starsSorted[i][1].username;
 		let stars = starsSorted[i][1].stars;
-		let starEntry = `<@${username}>: ${stars}`;
+		let starEntry = `<@${username}>: ${stars} stars`;
 		topStars.push(starEntry);
 
 		username = philanthropistsSorted[i][1].username;
 		let amount = philanthropistsSorted[i][1].amountGiven;
-		let philEntry = `<@${username}>: ${amount}`;
+		let philEntry = `<@${username}>: ${amount} times given`;
 		topPhils.push(philEntry);
 	}
 	let leaderboard = [topPhils, topStars];
