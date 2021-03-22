@@ -21,7 +21,6 @@ export function connectToMongo() {
 }
 
 export async function checkIfUser(username) {
-	console.log(username);
 	if (username[0] === "@") {
 		username = username.substring(1);
 	}
@@ -60,11 +59,11 @@ async function takeStars(username, amount) {
 		console.log("Couldn't take stars. User doesn't exist.");
 		return false;
 	}
-	user.amountGiven += 1;
+	user.amountGiven += amount;
 	user.stars -= amount;
 	user.save();
 	console.log(`${username}'s new balance: ${user.stars}`);
-	return true;
+	return user.stars;
 }
 
 async function giveStars(username, amount) {
@@ -76,7 +75,7 @@ async function giveStars(username, amount) {
 	user.stars += amount;
 	user.save();
 	console.log(`${username}'s new balance: ${user.stars}`);
-	return true;
+	return user.stars;
 }
 
 export async function handleTransaction(sender, receiver, starsSent) {
@@ -84,16 +83,17 @@ export async function handleTransaction(sender, receiver, starsSent) {
 		let user = await checkIfUser(receiver[i]);
 		if (!user) return false;
 	}
-	let receivedStars = await takeStars(sender, starsSent);
+	let takeSuccess = await takeStars(sender, starsSent);
 	if (receiver.length > 1) {
 		starsSent = starsSent / receiver.length;
 	}
-	if (receivedStars) {
+	if (takeSuccess) {
 		for (let user of receiver) {
-			let success = await giveStars(user, starsSent);
-			if (!success) return false;
+			let giveSuccess = await giveStars(user, starsSent);
+			if (!giveSuccess) return false;
 		}
-		return true;
+
+		return takeSuccess;
 	}
 }
 
@@ -128,6 +128,6 @@ export async function showLeaderboard() {
 
 export async function checkBalance(username) {
 	let user = await User.findOne({ username: username });
-	let message = `:star-power: You have ${user.stars} stars and you've given ${user.amountGiven} times :star-power:`;
+	let message = `You have ${user.stars} stars and you've given ${user.amountGiven} times`;
 	return message;
 }

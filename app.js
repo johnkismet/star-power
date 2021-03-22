@@ -5,6 +5,7 @@ import {
 	checkIfUser,
 	userHasEnoughStars,
 	handleTransaction,
+	checkBalance,
 } from "./backend/main";
 import handleMessage from "./handleMessage";
 
@@ -23,6 +24,37 @@ const slackClient = new WebClient(process.env.SLACK_TOKEN);
 // 		text: `Help Message`,
 // 	});
 // });
+
+function postEphemeralMsg(text, event) {
+	slackClient.chat.postEphemeral({
+		channel: event.channel,
+		user: event.user,
+		text: text,
+	});
+}
+
+async function messageSender(event) {
+	let userBalance = await checkBalance(event.user);
+	let message =
+		"Thanks for sharing your stars! " +
+		userBalance +
+		" DM me !help for more features";
+	postEphemeralMsg(message, event);
+}
+
+async function messageMentionedUsers(userList, event) {
+	for (let user of userList) {
+		let userBalance = await checkBalance(user);
+		let message =
+			"You got stars! " + userBalance + " DM me !help for more features";
+		console.log(message);
+		slackClient.chat.postEphemeral({
+			channel: event.channel,
+			text: message,
+			user: user,
+		});
+	}
+}
 
 // TODO: Handle replies in thread
 slackEvents.on("message", (event) => {
@@ -43,21 +75,22 @@ slackEvents.on("message", (event) => {
 			let channel = slackClient.chat;
 
 			if (!usersMentioned) {
-				channel.postEphemeral({
-					channel: event.channel,
-					text:
-						"I can't give any stars because you didn't @ anyone in your shoutout",
-					user: event.user,
-				});
+				postEphemeralMsg(
+					"I can't give any stars because you didn't @ anyone in your shoutout",
+					event
+				);
 				return;
 			}
 			for (let x of usersMentioned) {
 				if (x.includes(sender)) {
-					channel.postEphemeral({
-						channel: event.channel,
-						user: event.user,
-						text: "You can't send stars to yourself.",
-					});
+					postEphemeralMsg("You can't send stars to yourself.", event);
+					return;
+				}
+				if (x.includes("U01SNC0TL9W")) {
+					postEphemeralMsg(
+						"Thanks, but no thanks - I don't have any use for stars",
+						event
+					);
 					return;
 				}
 			}
@@ -65,12 +98,10 @@ slackEvents.on("message", (event) => {
 			let flag = false;
 			userHasEnoughStars(sender, starsSent).then((userHasEnough) => {
 				if (!userHasEnough) {
-					channel.postEphemeral({
-						channel: event.channel,
-						text:
-							"You don't have enough stars :( DM me and say !balance to see how many stars you have.",
-						user: event.user,
-					});
+					postEphemeralMsg(
+						"You don't have enough stars :( DM me and say !balance to see how many stars you have.",
+						event
+					);
 					flag = true;
 					return;
 				}
@@ -79,11 +110,10 @@ slackEvents.on("message", (event) => {
 			// Check if there is an even way to split stars with multiple people
 			if (usersMentioned.length > 1) {
 				if (starsSent % usersMentioned.length !== 0) {
-					channel.postEphemeral({
-						channel: event.channel,
-						text: `I can't split the stars evenly between all the mentioned users, please try again`,
-						user: event.user,
-					});
+					postEphemeralMsg(
+						`I can't split the stars evenly between all the mentioned users, please try again`,
+						event
+					);
 					return;
 				}
 			}
@@ -99,22 +129,18 @@ slackEvents.on("message", (event) => {
 					handleTransaction(sender, sanitizedUsers, starsSent).then(
 						(success) => {
 							if (success) {
-								channel.postEphemeral({
-									channel: event.channel,
-									text: `Thanks for sharing! Your stars have been sent. DM me '!help' to see my other features`,
-									user: event.user,
-								});
+								messageSender(event);
+								messageMentionedUsers(sanitizedUsers, event);
 							} else {
-								channel.postEphemeral({
-									channel: event.channel,
-									text: `I couldn't find one of the users you mentioned.`,
-									user: event.user,
-								});
+								postEphemeralMsg(
+									`I couldn't find one of the users you mentioned.`,
+									event
+								);
 							}
 						}
 					);
 				}
-			}, 2000);
+			}, 1000);
 		}
 	}
 });

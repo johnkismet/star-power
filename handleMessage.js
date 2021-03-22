@@ -13,7 +13,7 @@ export default function handleMessage(message, slackClient, event) {
 	e.g. "Thanks to @person1 @person2 @person3 for the help! :star-power: :star-power: :star-power:
 	`;
 
-	switch (message) {
+	switch (message.toLowerCase()) {
 		case "!leaderboard":
 			showLeaderboard().then((leaderboard) => {
 				let phils = `TOP GIVERS: \n`;
