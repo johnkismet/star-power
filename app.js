@@ -6,6 +6,7 @@ import {
 	userHasEnoughStars,
 	handleTransaction,
 	checkBalance,
+	giveStars,
 } from "./backend/main";
 import handleMessage from "./handleMessage";
 
@@ -26,6 +27,25 @@ function postEphemeralMsg(text, event, user = event.user) {
 	});
 }
 
+async function bonusSurprise(username, event) {
+	let entryChance = Math.random();
+	let maxBonus = 4; // Make the max 1 less than what you want the actual max to be, to account for negating 0's
+	if (entryChance > 0.6) {
+		let bonusAmount = Math.floor(Math.random() * maxBonus) + 1;
+		if (Math.random() > 0.9) {
+			bonusAmount += 1;
+		}
+		giveStars(username, bonusAmount).then((success) => {
+			if (success) {
+				postEphemeralMsg(
+					`Wow! You got a bonus surprise of ${bonusAmount} star(s) :D`,
+					event
+				);
+			}
+		});
+	}
+}
+
 async function messageSender(event) {
 	let userBalance = await checkBalance(event.user);
 	let message = `Thanks for sharing your stars! Your new balance is ${userBalance.stars} stars and you have now given ${userBalance.amountGiven} stars! DM me !help for more features`;
@@ -36,7 +56,6 @@ async function messageMentionedUsers(userList, event) {
 	for (let user of userList) {
 		let userBalance = await checkBalance(user);
 		let message = `You got a shoutout from <@${event.user}>! Your new balance is ${userBalance.stars} stars. DM me !help for more features `;
-		console.log(message);
 		postEphemeralMsg(message, event, user);
 	}
 }
@@ -121,6 +140,9 @@ slackEvents.on("message", (event) => {
 								if (success) {
 									messageSender(event);
 									messageMentionedUsers(sanitizedUsers, event);
+									setTimeout(() => {
+										bonusSurprise(sender, event);
+									}, 1000);
 								} else {
 									postEphemeralMsg(
 										`I couldn't find one of the users you mentioned.`,

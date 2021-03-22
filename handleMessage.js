@@ -2,7 +2,7 @@ import { showLeaderboard, checkBalance } from "./backend/main";
 
 export default function handleMessage(message, slackClient, event) {
 	let channel = slackClient.chat;
-	let usageMessage = `StarPower is a fun way to give praise to those who deserve it! In the #shoutouts channel just write your message to the person, make sure you @ them. And anywhere in the message write out star-power (with colon's (:) surrounding it) to give them as many stars as you want (and can afford) \n
+	let usageMessage = `StarPower is a fun way to give praise to those who deserve it! In the #shoutouts channel just write your message to the person, make sure you @ them. And anywhere in the message send the star-power emoji to give them as many stars as you want (and can afford) \n
 	Example message: Shoutout to @JohnAnderson for making this! :star-power: :star-power: \n
 	Usage: \n
 	!leaderboard - Displays the top 5 star earners and top 5 philanthropists \n

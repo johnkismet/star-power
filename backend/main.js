@@ -62,11 +62,10 @@ async function takeStars(username, amount) {
 	user.amountGiven += amount;
 	user.stars -= amount;
 	user.save();
-	console.log(`${username}'s new balance: ${user.stars}`);
 	return user.stars;
 }
 
-async function giveStars(username, amount) {
+export async function giveStars(username, amount) {
 	let user = await User.findOne({ username: username });
 	if (!user) {
 		console.log("Couldn't give stars. User doesn't exist.");
@@ -74,7 +73,7 @@ async function giveStars(username, amount) {
 	}
 	user.stars += amount;
 	user.save();
-	console.log(`${username}'s new balance: ${user.stars}`);
+	console.log("gave stars :D");
 	return user.stars;
 }
 
