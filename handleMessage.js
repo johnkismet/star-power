@@ -37,9 +37,10 @@ export default function handleMessage(message, slackClient, event) {
 			break;
 		case "!balance":
 			checkBalance(event.user).then((balance) => {
+				let message = `:star-power: You have ${balance.stars} stars and you've given stars ${balance.amountGiven} times :star-power:`;
 				channel.postMessage({
 					channel: event.channel,
-					text: balance,
+					text: message,
 				});
 			});
 			break;

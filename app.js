@@ -28,20 +28,14 @@ function postEphemeralMsg(text, event, user = event.user) {
 
 async function messageSender(event) {
 	let userBalance = await checkBalance(event.user);
-	let message =
-		"Thanks for sharing your stars! " +
-		userBalance +
-		" DM me !help for more features";
+	let message = `Thanks for sharing your stars! Your new balance is ${userBalance.stars} stars and you have now given ${userBalance.amountGiven} stars! DM me !help for more features`;
 	postEphemeralMsg(message, event);
 }
 
 async function messageMentionedUsers(userList, event) {
 	for (let user of userList) {
 		let userBalance = await checkBalance(user);
-		let message =
-			`You got a shoutout from <@${event.user}>! ` +
-			userBalance +
-			" DM me !help for more features";
+		let message = `You got a shoutout from <@${event.user}>! Your new balance is ${userBalance.stars} stars. DM me !help for more features `;
 		console.log(message);
 		postEphemeralMsg(message, event, user);
 	}

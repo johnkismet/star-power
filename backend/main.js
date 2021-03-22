@@ -128,6 +128,9 @@ export async function showLeaderboard() {
 
 export async function checkBalance(username) {
 	let user = await User.findOne({ username: username });
-	let message = `You have ${user.stars} stars and you've given ${user.amountGiven} times.`;
-	return message;
+	let balance = {
+		stars: user.stars,
+		amountGiven: user.amountGiven,
+	};
+	return balance;
 }
