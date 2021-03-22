@@ -39,7 +39,9 @@ async function messageMentionedUsers(userList, event) {
 	for (let user of userList) {
 		let userBalance = await checkBalance(user);
 		let message =
-			"You got stars! " + userBalance + " DM me !help for more features";
+			`You got stars from <@${event.user}>! ` +
+			userBalance +
+			" DM me !help for more features";
 		console.log(message);
 		postEphemeralMsg(message, event, user);
 	}

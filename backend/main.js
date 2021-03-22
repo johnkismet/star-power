@@ -116,13 +116,13 @@ export async function showLeaderboard() {
 		let stars = starsSorted[i][1].stars;
 		let starEntry = `<@${username}>: ${stars}`;
 		topStars.push(starEntry);
+
 		username = philanthropistsSorted[i][1].username;
 		let amount = philanthropistsSorted[i][1].amountGiven;
 		let philEntry = `<@${username}>: ${amount}`;
 		topPhils.push(philEntry);
 	}
 	let leaderboard = [topPhils, topStars];
-	// console.log(leaderboard);
 	return leaderboard;
 }
 
