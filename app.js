@@ -21,22 +21,11 @@ const slackEvents = createEventAdapter(process.env.SIGNING_SECRET);
 const slackClient = new WebClient(process.env.SLACK_TOKEN);
 
 function postEphemeralMsg(text, event, user = event.user) {
-	switch (event.type) {
-		case "message":
-			slackClient.chat.postEphemeral({
-				channel: event.channel,
-				user: user,
-				text: text,
-			});
-			break;
-		case "reaction_added":
-			slackClient.chat.postEphemeral({
-				channel: event.item.channel,
-				user: user,
-				text: text,
-			});
-			break;
-	}
+	slackClient.chat.postEphemeral({
+		channel: event.channel,
+		user: user,
+		text: text,
+	});
 }
 
 async function bonusSurprise(username, event) {
@@ -89,7 +78,10 @@ async function messageMentionedUsers(userList, event) {
 slackEvents.on("message", (event) => {
 	let message = event.text;
 	let sender = event.user;
-	checkIfUser(sender).then(() => {
+	checkIfUser(sender).then((result) => {
+		if (result === "NEW_USER") {
+			postEphemeralMsg("Here's two stars! [FILL MORE INFO HERE]", event);
+		}
 		switch (event.channel_type) {
 			case "im":
 				if (message[0] === prefix) {
@@ -185,14 +177,7 @@ slackEvents.on("reaction_added", (event) => {
 	if (event.user === event.item_user) return;
 	if ("U01SNC0TL9W" === event.item_user) return;
 	if (event.reaction === "star-power") {
-		userHasEnoughStars(event.user, 1).then((userHasEnough) => {
-			if (!userHasEnough) {
-				notEnoughStars(event);
-				return false;
-			}
-			giveStars(event.item_user, 1);
-			takeStars(event.user, 1);
-		});
+		giveStars(event.item_user, 1);
 	}
 });
 
@@ -201,8 +186,6 @@ slackEvents.on("reaction_removed", (event) => {
 	if ("U01SNC0TL9W" === event.item_user) return;
 
 	if (event.reaction === "star-power") {
-		// third parameter to signify the function should decrement giveAmount
-		giveStars(event.user, 1, true);
 		// 3rd parameter to skip the amountGiven
 		takeStars(event.item_user, 1, true);
 	}

@@ -28,11 +28,11 @@ export async function checkIfUser(username) {
 	}
 	if (username.length !== 11) {
 		console.log("username format is wrong");
-		return false;
+		return "ERROR";
 	}
 	let success = await User.findOne({ username: username });
 	if (success) {
-		return true;
+		return "EXISTING_USER";
 	} else {
 		User.create(
 			{
@@ -44,12 +44,12 @@ export async function checkIfUser(username) {
 			function (err, user) {
 				if (err) {
 					console.log(err);
-					return false;
+					return "ERROR";
 				}
 				console.log("Saved!");
-				return true;
 			}
 		);
+		return "NEW_USER";
 	}
 }
 
