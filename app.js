@@ -38,10 +38,11 @@ async function bonusSurprise(username, event) {
 		}
 		giveStars(username, bonusAmount).then((success) => {
 			if (success) {
-				postEphemeralMsg(
-					`Wow! You got a bonus surprise of ${bonusAmount} star(s) :D`,
-					event
-				);
+				let msg = `Wow! You got a bonus surprise of ${bonusAmount} star(s) `;
+				for (let i = 0; i < bonusAmount; i++) {
+					msg += emoji;
+				}
+				postEphemeralMsg(msg, event);
 			}
 		});
 	}
@@ -55,7 +56,7 @@ async function messageSender(event) {
 
 async function notEnoughStars(event) {
 	let userBalance = await checkBalance(event.user);
-	let msg = `I'm sorry, you don't have enough stars in your account.`;
+	let msg = `I'm sorry, you don't have enough stars in your account. `;
 	let balanceMsg =
 		userBalance.stars === 1
 			? "Your balance: 1 star"
@@ -144,7 +145,8 @@ slackEvents.on("message", (event) => {
 								if (!userHasEnough) return;
 								handleTransaction(sender, sanitizedUsers, starsSent).then(
 									(success) => {
-										if (success) {
+										console.log("Success: ", success);
+										if (success >= 0) {
 											messageSender(event);
 											messageMentionedUsers(sanitizedUsers, event);
 											setTimeout(() => {

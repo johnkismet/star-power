@@ -20,6 +20,8 @@ export function connectToMongo() {
 	}
 }
 
+let defaultStars = 2;
+
 export async function checkIfUser(username) {
 	if (username[0] === "@") {
 		username = username.substring(1);
@@ -32,13 +34,12 @@ export async function checkIfUser(username) {
 	if (success) {
 		return true;
 	} else {
-		console.log("User wasn't found, making a new one");
-
 		User.create(
 			{
 				username: username,
-				stars: 2,
+				stars: defaultStars,
 				amountGiven: 0,
+				lifetimeStars: defaultStars,
 			},
 			function (err, user) {
 				if (err) {
@@ -65,10 +66,14 @@ export async function takeStars(username, amount, skip = false) {
 	}
 	// skip when removing a reaction since we have to take stars but don't want to increment amountGiven
 	if (!skip) {
+		console.log(skip);
 		user.amountGiven += amount;
+	} else {
+		user.lifetimeStars -= amount;
 	}
 	user.stars -= amount;
 	user.save();
+	console.log("Took stars from", username);
 	return user.stars;
 }
 
@@ -79,10 +84,12 @@ export async function giveStars(username, amount, decrement = false) {
 		return false;
 	}
 	user.stars += amount;
+	user.lifetimeStars += amount;
 	if (decrement) {
 		user.amountGiven -= 1;
 	}
 	user.save();
+	console.log("Gave stars to", username);
 	return user.stars;
 }
 
@@ -99,7 +106,7 @@ export async function handleTransaction(sender, receiver, starsSent) {
 		starsSent = starsSent / receiver.length;
 	}
 	console.log("Take Success: ", takeSuccess);
-	if (takeSuccess) {
+	if (takeSuccess >= 0) {
 		for (let user of receiver) {
 			let giveSuccess = await giveStars(user, starsSent);
 			if (!giveSuccess) {
@@ -153,8 +160,9 @@ export async function checkBalance(username) {
 export async function reset() {
 	let users = await User.find({});
 	users.forEach((user) => {
-		user.stars = 2;
+		user.stars = defaultStars;
 		user.amountGiven = 0;
+		user.lifetimeStars = defaultStars;
 		user.save();
 	});
 	console.log("Reset :D");
