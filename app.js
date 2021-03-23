@@ -77,92 +77,93 @@ async function messageMentionedUsers(userList, event) {
 slackEvents.on("message", (event) => {
 	let message = event.text;
 	let sender = event.user;
-	checkIfUser(sender);
-	console.log(event);
-
-	switch (event.channel_type) {
-		case "im":
-			if (message[0] === prefix) {
-				handleMessage(message, slackClient, event);
-				return;
-			}
-			break;
-		case "channel":
-			if (message.includes(emoji)) {
-				let starsSent = message.match(/:star-power:/gi).length;
-				let usersMentioned = message.match(/@\w+/gm);
-				// Guard for no mentioned users
-				if (!usersMentioned) {
-					postEphemeralMsg(
-						"I can't give any stars because you didn't @ anyone in your shoutout",
-						event
-					);
+	checkIfUser(sender).then(() => {
+		switch (event.channel_type) {
+			case "im":
+				if (message[0] === prefix) {
+					handleMessage(message, slackClient, event);
 					return;
 				}
-				// Guard for trying to give yourself/bot stars
-				for (let x of usersMentioned) {
-					if (x.includes(sender)) {
-						postEphemeralMsg("You can't send stars to yourself.", event);
-						return;
-					}
-					if (x.includes("U01SNC0TL9W")) {
+				break;
+			case "channel":
+				if (message.includes(emoji)) {
+					let starsSent = message.match(/:star-power:/gi).length;
+					let usersMentioned = message.match(/@\w+/gm);
+					// Guard for no mentioned users
+					if (!usersMentioned) {
 						postEphemeralMsg(
-							"Thanks, but no thanks - I don't have any use for stars",
+							"I can't give any stars because you didn't @ anyone in your shoutout",
 							event
 						);
 						return;
 					}
-				}
-
-				// Check if there is an even way to split stars with multiple people
-				if (usersMentioned.length > 1) {
-					if (starsSent % usersMentioned.length !== 0) {
-						postEphemeralMsg(
-							`I can't split the stars evenly between all the mentioned users, please try again`,
-							event
-						);
-						return;
-					}
-				}
-
-				let sanitizedUsers = [];
-				for (let user of usersMentioned) {
-					if (user[0] === "@") {
-						user = user.substring(1);
-						sanitizedUsers.push(user);
-					}
-				}
-				// check to make sure user has enough stars
-				userHasEnoughStars(sender, starsSent)
-					.then((userHasEnough) => {
-						if (!userHasEnough) {
-							notEnoughStars(event);
-							return false;
+					// Guard for trying to give yourself/bot stars
+					for (let x of usersMentioned) {
+						if (x.includes(sender)) {
+							postEphemeralMsg("You can't send stars to yourself.", event);
+							return;
 						}
-						return true;
-					})
-					.then((userHasEnough) => {
-						if (!userHasEnough) return;
-						handleTransaction(sender, sanitizedUsers, starsSent).then(
-							(success) => {
-								if (success) {
-									messageSender(event);
-									messageMentionedUsers(sanitizedUsers, event);
-									setTimeout(() => {
-										bonusSurprise(sender, event);
-									}, 1000);
-								} else {
-									postEphemeralMsg(
-										`I couldn't find one of the users you mentioned.`,
-										event
-									);
+						if (x.includes("U01SNC0TL9W")) {
+							postEphemeralMsg(
+								"Thanks, but no thanks - I don't have any use for stars",
+								event
+							);
+							return;
+						}
+					}
+
+					// Check if there is an even way to split stars with multiple people
+					if (usersMentioned.length > 1) {
+						if (starsSent % usersMentioned.length !== 0) {
+							postEphemeralMsg(
+								`I can't split the stars evenly between all the mentioned users, please try again`,
+								event
+							);
+							return;
+						}
+					}
+
+					let sanitizedUsers = [];
+					for (let user of usersMentioned) {
+						if (user[0] === "@") {
+							user = user.substring(1);
+							sanitizedUsers.push(user);
+						}
+					}
+					// check to make sure user has enough stars
+					setTimeout(() => {
+						userHasEnoughStars(sender, starsSent)
+							.then((userHasEnough) => {
+								if (!userHasEnough) {
+									notEnoughStars(event);
+									return false;
 								}
-							}
-						);
-					});
-			}
-			break;
-	}
+								return true;
+							})
+							.then((userHasEnough) => {
+								if (!userHasEnough) return;
+								handleTransaction(sender, sanitizedUsers, starsSent).then(
+									(success) => {
+										if (success) {
+											messageSender(event);
+											messageMentionedUsers(sanitizedUsers, event);
+											setTimeout(() => {
+												bonusSurprise(sender, event);
+											}, 1000);
+										} else {
+											postEphemeralMsg(
+												`Sorry, something went wrong on my end.`,
+												event
+											);
+										}
+									}
+								);
+							});
+					}, 1000);
+				}
+				break;
+		}
+	});
 });
 
 slackEvents.on("reaction_added", (event) => {

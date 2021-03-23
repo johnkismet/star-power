@@ -32,19 +32,23 @@ export async function checkIfUser(username) {
 	if (success) {
 		return true;
 	} else {
-		const newUser = new User({
-			username: username,
-			stars: 2,
-			amountGiven: 0,
-		});
+		console.log("User wasn't found, making a new one");
 
-		newUser.save((err) => {
-			if (err) {
-				console.log(err);
+		User.create(
+			{
+				username: username,
+				stars: 2,
+				amountGiven: 0,
+			},
+			function (err, user) {
+				if (err) {
+					console.log(err);
+					return false;
+				}
+				console.log("Saved!");
+				return true;
 			}
-			console.log("User Created");
-			return true;
-		});
+		);
 	}
 }
 
@@ -85,16 +89,23 @@ export async function giveStars(username, amount, decrement = false) {
 export async function handleTransaction(sender, receiver, starsSent) {
 	for (let i = 0; i < receiver.length; i++) {
 		let user = await checkIfUser(receiver[i]);
-		if (!user) return false;
+		// if (!user) {
+		// 	console.log("No user!");
+		// 	return false;
+		// }
 	}
 	let takeSuccess = await takeStars(sender, starsSent);
 	if (receiver.length > 1) {
 		starsSent = starsSent / receiver.length;
 	}
+	console.log("Take Success: ", takeSuccess);
 	if (takeSuccess) {
 		for (let user of receiver) {
 			let giveSuccess = await giveStars(user, starsSent);
-			if (!giveSuccess) return false;
+			if (!giveSuccess) {
+				console.log("Couldn't give stars");
+				return false;
+			}
 		}
 
 		return takeSuccess;
