@@ -25,14 +25,11 @@ export default function handleMessage(message, slackClient, event) {
 		case "!leaderboard":
 			showLeaderboard().then((leaderboard) => {
 				let phils = `TOP GIVERS: \n`;
-				for (let entry of leaderboard[0]) {
-					phils += `${entry} \n`;
-				}
 				let stars = `TOP STARS: \n`;
-				for (let entry of leaderboard[1]) {
-					stars += `${entry} \n`;
+				for (let i = 0; i < leaderboard[0].length; i++) {
+					phils += `${leaderboard[0][i]} \n`;
+					stars += `${leaderboard[1][i]} \n`;
 				}
-
 				sendMsg(phils);
 				sendMsg(stars);
 			});
