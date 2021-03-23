@@ -21,11 +21,22 @@ const slackEvents = createEventAdapter(process.env.SIGNING_SECRET);
 const slackClient = new WebClient(process.env.SLACK_TOKEN);
 
 function postEphemeralMsg(text, event, user = event.user) {
-	slackClient.chat.postEphemeral({
-		channel: event.channel,
-		user: user,
-		text: text,
-	});
+	switch (event.type) {
+		case "message":
+			slackClient.chat.postEphemeral({
+				channel: event.channel,
+				user: user,
+				text: text,
+			});
+			break;
+		case "reaction_added":
+			slackClient.chat.postEphemeral({
+				channel: event.item.channel,
+				user: user,
+				text: text,
+			});
+			break;
+	}
 }
 
 async function bonusSurprise(username, event) {
@@ -170,11 +181,18 @@ slackEvents.on("message", (event) => {
 
 slackEvents.on("reaction_added", (event) => {
 	// Guards for adding emojis on your posts/bot posts
+	console.log(event);
 	if (event.user === event.item_user) return;
 	if ("U01SNC0TL9W" === event.item_user) return;
 	if (event.reaction === "star-power") {
-		giveStars(event.item_user, 1);
-		takeStars(event.user, 1);
+		userHasEnoughStars(event.user, 1).then((userHasEnough) => {
+			if (!userHasEnough) {
+				notEnoughStars(event);
+				return false;
+			}
+			giveStars(event.item_user, 1);
+			takeStars(event.user, 1);
+		});
 	}
 });
 

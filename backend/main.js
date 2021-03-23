@@ -84,9 +84,10 @@ export async function giveStars(username, amount, decrement = false) {
 		return false;
 	}
 	user.stars += amount;
-	user.lifetimeStars += amount;
 	if (decrement) {
 		user.amountGiven -= 1;
+	} else {
+		user.lifetimeStars += amount;
 	}
 	user.save();
 	console.log("Gave stars to", username);
