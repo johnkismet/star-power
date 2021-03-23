@@ -113,9 +113,6 @@ slackEvents.on("message", (event) => {
 					}
 				}
 
-				// check to make sure user has enough stars
-				let flag = false;
-
 				let sanitizedUsers = [];
 				for (let user of usersMentioned) {
 					if (user[0] === "@") {
@@ -123,6 +120,7 @@ slackEvents.on("message", (event) => {
 						sanitizedUsers.push(user);
 					}
 				}
+				// check to make sure user has enough stars
 				userHasEnoughStars(sender, starsSent)
 					.then((userHasEnough) => {
 						if (!userHasEnough) {
