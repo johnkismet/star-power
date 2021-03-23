@@ -1,4 +1,4 @@
-import { showLeaderboard, checkBalance } from "./backend/main";
+import { showLeaderboard, checkBalance, reset } from "./backend/main";
 
 export default function handleMessage(message, slackClient, event) {
 	let channel = slackClient.chat;
@@ -52,6 +52,11 @@ export default function handleMessage(message, slackClient, event) {
 				channel: event.channel,
 				text: usageMessage,
 			});
+			break;
+		case "!reset":
+			if (event.user === "U019CRDTG3S") {
+				reset();
+			}
 			break;
 		default:
 			channel.postMessage({

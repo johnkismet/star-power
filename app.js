@@ -78,7 +78,6 @@ slackEvents.on("message", (event) => {
 			if (message.includes(emoji)) {
 				let starsSent = message.match(/:star-power:/gi).length;
 				let usersMentioned = message.match(/@\w+/gm);
-
 				// Guard for no mentioned users
 				if (!usersMentioned) {
 					postEphemeralMsg(
