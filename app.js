@@ -49,8 +49,19 @@ async function bonusSurprise(username, event) {
 
 async function messageSender(event) {
 	let userBalance = await checkBalance(event.user);
-	let message = `Thanks for sharing your stars! Your new balance is ${userBalance.stars} stars and you have now given ${userBalance.amountGiven} stars! DM me !help for more features`;
-	postEphemeralMsg(message, event);
+	let msg = `Thanks for sharing your stars! Your new balance is ${userBalance.stars} stars and you have now given ${userBalance.amountGiven} stars! DM me !help for more features`;
+	postEphemeralMsg(msg, event);
+}
+
+async function notEnoughStars(event) {
+	let userBalance = await checkBalance(event.user);
+	let msg = `I'm sorry, you don't have enough stars in your account.`;
+	let balanceMsg =
+		userBalance.stars === 1
+			? "Your balance: 1 star"
+			: `Your balance: ${userBalance.stars} stars`;
+	msg += balanceMsg;
+	postEphemeralMsg(msg, event);
 }
 
 async function messageMentionedUsers(userList, event) {
@@ -67,6 +78,7 @@ slackEvents.on("message", (event) => {
 	let message = event.text;
 	let sender = event.user;
 	checkIfUser(sender);
+	console.log(event);
 
 	switch (event.channel_type) {
 		case "im":
@@ -124,10 +136,7 @@ slackEvents.on("message", (event) => {
 				userHasEnoughStars(sender, starsSent)
 					.then((userHasEnough) => {
 						if (!userHasEnough) {
-							postEphemeralMsg(
-								"You don't have enough stars :( DM me and say !balance to see how many stars you have.",
-								event
-							);
+							notEnoughStars(event);
 							return false;
 						}
 						return true;
