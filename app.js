@@ -20,7 +20,7 @@ const prefix = "!";
 const slackEvents = createEventAdapter(process.env.SIGNING_SECRET);
 const slackClient = new WebClient(process.env.SLACK_TOKEN);
 
-function postEphemeralMsg(text, event, user = event.user) {
+export function postEphemeralMsg(text, event, user = event.user) {
 	slackClient.chat.postEphemeral({
 		channel: event.channel,
 		user: user,
