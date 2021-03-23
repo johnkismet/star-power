@@ -193,7 +193,7 @@ slackEvents.on("reaction_removed", (event) => {
 
 slackEvents.on("error", console.error);
 
-slackEvents.start(port).then(() => {
+slackEvents.start(process.env.PORT || port).then(() => {
 	console.log(`Server started on port ${port}!`);
 	connectToMongo();
 });
