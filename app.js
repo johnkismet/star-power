@@ -29,9 +29,9 @@ function postEphemeralMsg(text, event, user = event.user) {
 }
 
 async function bonusSurprise(username, event) {
-	let entryChance = Math.random();
+	let entryChance = Math.floor(Math.random() * 1000);
 	let maxBonus = 4; // Make the max 1 less than what you want the actual max to be, to account for negating 0's
-	if (entryChance > 0.7) {
+	if (entryChance > 600) {
 		let bonusAmount = Math.floor(Math.random() * maxBonus) + 1;
 		if (Math.random() > 0.9) {
 			bonusAmount += 1;
@@ -58,6 +58,7 @@ async function messageMentionedUsers(userList, event) {
 		let userBalance = await checkBalance(user);
 		let message = `You got a shoutout from <@${event.user}>! Your new balance is ${userBalance.stars} stars. DM me !help for more features `;
 		postEphemeralMsg(message, event, user);
+		console.log(message);
 	}
 }
 

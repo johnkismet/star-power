@@ -142,7 +142,7 @@ export async function checkBalance(username) {
 export async function reset() {
 	let users = await User.find({});
 	users.forEach((user) => {
-		user.stars = 0;
+		user.stars = 2;
 		user.amountGiven = 0;
 		user.save();
 	});

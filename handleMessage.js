@@ -15,7 +15,12 @@ export default function handleMessage(message, slackClient, event) {
 	tip: You can send multiple shout outs at the same time and give everyone an even amount of stars! As long as Star-Power can divide it evenly you're good! \n
 	e.g. "Thanks to @person1 @person2 @person3 for the help! :star-power: :star-power: :star-power:
 	`;
-
+	function sendMsg(text) {
+		channel.postMessage({
+			channel: event.channel,
+			text: text,
+		});
+	}
 	switch (message.toLowerCase()) {
 		case "!leaderboard":
 			showLeaderboard().then((leaderboard) => {
@@ -28,40 +33,26 @@ export default function handleMessage(message, slackClient, event) {
 					stars += `${entry} \n`;
 				}
 
-				channel.postMessage({
-					channel: event.channel,
-					text: phils,
-				});
-				channel.postMessage({
-					channel: event.channel,
-					text: stars,
-				});
+				sendMsg(phils);
+				sendMsg(stars);
 			});
 			break;
 		case "!balance":
 			checkBalance(event.user).then((balance) => {
 				let message = `:star-power: You have ${balance.stars} stars and you've given stars ${balance.amountGiven} times :star-power:`;
-				channel.postMessage({
-					channel: event.channel,
-					text: message,
-				});
+				sendMsg(message);
 			});
 			break;
 		case "!help":
-			channel.postMessage({
-				channel: event.channel,
-				text: usageMessage,
-			});
+			sendMsg(usageMessage);
 			break;
 		case "!reset":
 			if (event.user === "U019CRDTG3S") {
 				reset();
+				sendMsg("Reset!");
 			}
 			break;
 		default:
-			channel.postMessage({
-				channel: event.channel,
-				text: usageMessage,
-			});
+			sendMsg(usageMessage);
 	}
 }
