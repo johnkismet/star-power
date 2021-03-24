@@ -123,24 +123,20 @@ export async function showLeaderboard() {
 	let starsSorted = Object.entries(users).sort(
 		(a, b) => b[1].stars - a[1].stars
 	);
-	let philanthropistsSorted = Object.entries(users).sort(
+	let g = Object.entries(users).sort(
 		(a, b) => b[1].amountGiven - a[1].amountGiven
 	);
 	let topPhils = [];
 	let topStars = [];
 	let maxCount = 5;
-	if (maxCount > starsSorted.length) {
-		maxCount = starsSorted.length;
-	}
-	for (let i = 0; i < maxCount; i++) {
-		let username = starsSorted[i][1].username;
-		let stars = starsSorted[i][1].stars;
-		let starEntry = `<@${username}>: ${stars} stars`;
-		topStars.push(starEntry);
 
-		username = philanthropistsSorted[i][1].username;
-		let amount = philanthropistsSorted[i][1].amountGiven;
-		let philEntry = `<@${username}>: ${amount} times given`;
+	// this is mostly for development when the database is less than 5
+	if (maxCount > starsSorted.length) maxCount = starsSorted.length;
+
+	for (let i = 0; i < maxCount; i++) {
+		let starEntry = `<@${starsSorted[i][1].username}>: ${starsSorted[i][1].stars} stars`;
+		let philEntry = `<@${givenSorted[i][1].username}>: ${givenSorted[i][1].amountGiven} times given`;
+		topStars.push(starEntry);
 		topPhils.push(philEntry);
 	}
 	let leaderboard = [topPhils, topStars];

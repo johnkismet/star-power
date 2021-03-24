@@ -26,11 +26,11 @@ const prefix = "!";
 
 const slackEvents = createEventAdapter(process.env.SIGNING_SECRET);
 export const slackClient = new WebClient(process.env.SLACK_TOKEN);
-
 // TODO: Handle replies in thread
 slackEvents.on("message", (event) => {
 	let message = event.text;
 	let sender = event.user;
+
 	checkIfUser(sender).then((result) => {
 		if (result === "NEW_USER") {
 			greetNewUser(event);

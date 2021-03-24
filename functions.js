@@ -1,11 +1,11 @@
 import { checkBalance, giveStars, takeStars } from "./backend/main";
 import { slackClient, emoji } from "./app";
 
-export function postEphemeralMsg(text, event, user = event.user) {
+export function postEphemeralMsg(message, event, user = event.user) {
 	slackClient.chat.postEphemeral({
 		channel: event.channel,
 		user: user,
-		text: text,
+		text: message,
 	});
 }
 
@@ -49,16 +49,19 @@ export async function messageSender(event) {
 export async function messageMentionedUsers(userList, event) {
 	for (let user of userList) {
 		let userBalance = await checkBalance(user);
-		let message = `You got a shoutout from <@${event.user}>! Your new balance is ${userBalance.stars} stars. DM me !help for more features `;
-		postEphemeralMsg(message, event, user);
+		let message = `You got a shoutout from <@${event.user}>! Your new balance is ${userBalance.stars} stars. Write !help for more features `;
+
+		slackClient.chat.postMessage({
+			channel: user,
+			text: message,
+		});
 		console.log(message);
 	}
 }
 
 export function greetNewUser(event) {
-	slackClient.chat.postEphemeral({
-		channel: event.channel,
-		user: event.user,
+	slackClient.chat.postMessage({
+		channel: event.user,
 		blocks: [
 			{
 				type: "section",
