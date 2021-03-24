@@ -28,7 +28,7 @@ export async function checkIfUser(username) {
 		username = username.substring(1);
 	}
 	if (username.length !== 11) {
-		console.log("username format is wrong");
+		console.log("Username format is wrong");
 		return "ERROR";
 	}
 	let success = await User.findOne({ username: username });
@@ -47,7 +47,7 @@ export async function checkIfUser(username) {
 					console.log(err);
 					return "ERROR";
 				}
-				console.log("Saved!");
+				console.log("New user created!");
 			}
 		);
 		return "NEW_USER";
@@ -67,14 +67,12 @@ export async function takeStars(username, amount, skip = false) {
 	}
 	// skip when removing a reaction since we have to take stars but don't want to increment amountGiven
 	if (!skip) {
-		console.log(skip);
 		user.amountGiven += amount;
 	} else {
 		user.lifetimeStars -= amount;
 	}
 	user.stars -= amount;
 	user.save();
-	console.log("Took stars from", username);
 	return user.stars;
 }
 
@@ -91,23 +89,17 @@ export async function giveStars(username, amount, decrement = false) {
 		user.lifetimeStars += amount;
 	}
 	user.save();
-	console.log("Gave stars to", username);
 	return user.stars;
 }
 
 export async function handleTransaction(sender, receiver, starsSent) {
 	for (let i = 0; i < receiver.length; i++) {
-		let user = await checkIfUser(receiver[i]);
-		// if (!user) {
-		// 	console.log("No user!");
-		// 	return false;
-		// }
+		await checkIfUser(receiver[i]);
 	}
 	let takeSuccess = await takeStars(sender, starsSent);
 	if (receiver.length > 1) {
 		starsSent = starsSent / receiver.length;
 	}
-	console.log("Take Success: ", takeSuccess);
 	if (takeSuccess >= 0) {
 		for (let user of receiver) {
 			let giveSuccess = await giveStars(user, starsSent);

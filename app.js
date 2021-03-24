@@ -101,7 +101,6 @@ slackEvents.on("message", (event) => {
 								if (!userHasEnough) return;
 								handleTransaction(sender, sanitizedUsers, starsSent).then(
 									(success) => {
-										console.log("Success: ", success);
 										if (success >= 0) {
 											messageSender(event);
 											messageMentionedUsers(sanitizedUsers, event);
@@ -126,7 +125,6 @@ slackEvents.on("message", (event) => {
 
 slackEvents.on("reaction_added", (event) => {
 	// Guards for adding emojis on your posts/bot posts
-	console.log(event);
 	if (event.user === event.item_user) return;
 	if ("U01SNC0TL9W" === event.item_user) return;
 	if (event.reaction === "star-power") {
