@@ -27,7 +27,7 @@ export async function checkIfUser(username) {
 	if (username && username[0] === "@") {
 		username = username.substring(1);
 	}
-	if (username.length !== 11) {
+	if (!username.match(/U\w{10}/gm)) {
 		console.log("Username format is wrong");
 		return "ERROR";
 	}
@@ -65,7 +65,7 @@ export async function takeStars(username, amount, skip = false) {
 		console.log("Couldn't take stars. User doesn't exist.");
 		return false;
 	}
-	// skip when removing a reaction since we have to take stars but don't want to increment amountGiven
+	// skip == true when removing a reaction since we have to take stars but don't want to increment amountGiven
 	if (!skip) {
 		user.amountGiven += amount;
 	} else {
@@ -82,6 +82,9 @@ export async function giveStars(username, amount, decrement = false) {
 		console.log("Couldn't give stars. User doesn't exist.");
 		return false;
 	}
+
+	// always increment user.stars
+	// decrement == true when removing an emoji
 	user.stars += amount;
 	if (decrement) {
 		user.amountGiven -= 1;
@@ -96,11 +99,13 @@ export async function handleTransaction(sender, receiver, starsSent) {
 	for (let i = 0; i < receiver.length; i++) {
 		await checkIfUser(receiver[i]);
 	}
-	let takeSuccess = await takeStars(sender, starsSent);
+	let balanceAfterWithdraw = await takeStars(sender, starsSent);
+	// if multiple people then divide the amount of stars to send by however many people were mentioned
 	if (receiver.length > 1) {
-		starsSent = starsSent / receiver.length;
+		// flooring it just to be safe, shouldn't matter but this will prevent any floats from slipping through the cracks
+		starsSent = Math.floor(starsSent / receiver.length);
 	}
-	if (takeSuccess >= 0) {
+	if (balanceAfterWithdraw >= 0) {
 		for (let user of receiver) {
 			let giveSuccess = await giveStars(user, starsSent);
 			if (!giveSuccess) {
@@ -109,7 +114,7 @@ export async function handleTransaction(sender, receiver, starsSent) {
 			}
 		}
 
-		return takeSuccess;
+		return balanceAfterWithdraw;
 	}
 }
 

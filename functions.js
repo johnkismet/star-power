@@ -56,8 +56,6 @@ export async function messageMentionedUsers(userList, event) {
 }
 
 export function greetNewUser(event) {
-	// let msg =
-	// postEphemeralMsg(msg, event);
 	slackClient.chat.postEphemeral({
 		channel: event.channel,
 		user: event.user,
