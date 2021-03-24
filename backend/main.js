@@ -23,7 +23,8 @@ export function connectToMongo() {
 let defaultStars = 2;
 
 export async function checkIfUser(username) {
-	if (username[0] === "@") {
+	if (!username) return;
+	if (username && username[0] === "@") {
 		username = username.substring(1);
 	}
 	if (username.length !== 11) {
