@@ -125,10 +125,19 @@ slackEvents.on("message", (event) => {
 
 slackEvents.on("reaction_added", (event) => {
 	// Guards for adding emojis on your posts/bot posts
-	if (event.user === event.item_user) return;
-	if ("U01SNC0TL9W" === event.item_user) return;
+	if (event.user === event.item_user || "U01SNC0TL9W" === event.item_user)
+		return;
 	if (event.reaction === "star-power") {
-		giveStars(event.item_user, 1);
+		// Check if user before giving stars. if they are not a user wait 1 second for the creation to go through.
+		checkIfUser(event.item_user).then((result) => {
+			if (result === "NEW_USER") {
+				setTimeout(() => {
+					giveStars(event.item_user, 1);
+				}, 1000);
+			} else {
+				giveStars(event.item_user, 1);
+			}
+		});
 	}
 });
 

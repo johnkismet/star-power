@@ -56,8 +56,43 @@ export async function messageMentionedUsers(userList, event) {
 }
 
 export function greetNewUser(event) {
-	let msg = `Here's two stars! You're ready to start using Star-Power. Head over to the #shoutouts channel and thank someone that deserves it. \n
-You can also DM me "!help" to see what other features I have!
-        `;
-	postEphemeralMsg(msg, event);
+	// let msg =
+	// postEphemeralMsg(msg, event);
+	slackClient.chat.postEphemeral({
+		channel: event.channel,
+		user: event.user,
+		blocks: [
+			{
+				type: "section",
+				text: {
+					type: "mrkdwn",
+					text: "Here's two stars :star-power: :star-power:",
+				},
+			},
+			{
+				type: "section",
+				text: {
+					type: "mrkdwn",
+					text:
+						"You're all set to start using Star-Power! Too often we get caught up in our own work and forget to recognize each other, have a little fun, and celebrate!",
+				},
+			},
+			{
+				type: "section",
+				text: {
+					type: "mrkdwn",
+					text:
+						"• In your message just @ the people you're recognizing and include the star-power emoji. Each emoji you send will come from your balance and go into theirs \n • React to any message with :star-power: to send a free star to the poster",
+				},
+			},
+			{
+				type: "section",
+				text: {
+					type: "mrkdwn",
+					text:
+						"DM me !help for more features, such as seeing a leaderboard of the top users in Kenzie",
+				},
+			},
+		],
+	});
 }

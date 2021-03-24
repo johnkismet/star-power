@@ -147,6 +147,7 @@ export async function checkBalance(username) {
 	let balance = {
 		stars: user.stars,
 		amountGiven: user.amountGiven,
+		lifetimeStars: user.lifetimeStars,
 	};
 	return balance;
 }
