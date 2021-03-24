@@ -9,6 +9,7 @@ In Star Power's dedicated shoutout channel users can give praise to whomever the
 > Big thanks to @KenzieAcademy for teaching me how to code, have some stars! :star-power: :star-power:
 
 > @Adam @Joe @Zach You guys are the best! :star-power: :star-power: :star-power:
+
 *You can mention multiple people and split the stars evenly among them! So each mentioned person in this example would get 1 star*
 
 ### Don't forget reactions!
