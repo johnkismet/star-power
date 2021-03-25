@@ -10,9 +10,11 @@ export function postEphemeralMsg(message, event, user = event.user) {
 }
 
 export async function bonusSurprise(username, event) {
+	//TODO: Base off of however many people are in db, and how long message is, and a little bit of random luck
+	// Have multiplyer for amountGiven
 	let entryChance = Math.floor(Math.random() * 1000);
 	let maxBonus = 4; // Make the max 1 less than what you want the actual max to be, to account for negating 0's
-	if (entryChance > 100) {
+	if (entryChance > 600) {
 		let bonusAmount = Math.floor(Math.random() * maxBonus) + 1;
 		if (Math.random() > 0.9) {
 			bonusAmount += 1;

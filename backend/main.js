@@ -24,34 +24,36 @@ let defaultStars = 2;
 
 export async function checkIfUser(username) {
 	if (!username) return;
+	// This username is StarPower's username
 	if (username === "U01SNC0TL9W") return;
-	if (username && username[0] === "@") {
+
+	if (username[0] === "@") {
 		username = username.substring(1);
 	}
+
 	if (!username.match(/U\w{10}/gm)) {
 		console.log("Username format is wrong");
 		return "ERROR";
 	}
+
 	let success = await User.findOne({ username: username });
+
 	if (success) {
 		return "EXISTING_USER";
 	} else {
-		User.create(
-			{
+		try {
+			User.create({
 				username: username,
 				stars: defaultStars,
 				amountGiven: 0,
 				lifetimeStars: defaultStars,
-			},
-			function (err, user) {
-				if (err) {
-					console.log(err);
-					return "ERROR";
-				}
-				console.log("New user created!");
-			}
-		);
-		return "NEW_USER";
+			});
+			console.log("NEW USER");
+			return "NEW_USER";
+		} catch (err) {
+			console.log(err);
+			return "ERROR";
+		}
 	}
 }
 
@@ -62,10 +64,7 @@ export async function userHasEnoughStars(username, starsSent) {
 
 export async function takeStars(username, amount, skip = false) {
 	let user = await User.findOne({ username: username });
-	if (!user) {
-		console.log("Couldn't take stars. User doesn't exist.");
-		return false;
-	}
+	if (!user) return false;
 	// skip == true when removing a reaction since we have to take stars but don't want to increment amountGiven
 	if (!skip) {
 		user.amountGiven += amount;
@@ -124,10 +123,10 @@ export async function showLeaderboard() {
 	let starsSorted = Object.entries(users).sort(
 		(a, b) => b[1].stars - a[1].stars
 	);
-	let g = Object.entries(users).sort(
+	let givenSorted = Object.entries(users).sort(
 		(a, b) => b[1].amountGiven - a[1].amountGiven
 	);
-	let topPhils = [];
+	let topGiven = [];
 	let topStars = [];
 	let maxCount = 5;
 
@@ -135,23 +134,21 @@ export async function showLeaderboard() {
 	if (maxCount > starsSorted.length) maxCount = starsSorted.length;
 
 	for (let i = 0; i < maxCount; i++) {
-		let starEntry = `<@${starsSorted[i][1].username}>: ${starsSorted[i][1].stars} stars`;
-		let philEntry = `<@${givenSorted[i][1].username}>: ${givenSorted[i][1].amountGiven} times given`;
-		topStars.push(starEntry);
-		topPhils.push(philEntry);
+		let mostStarsReceivedEntry = `<@${starsSorted[i][1].username}>: ${starsSorted[i][1].stars} stars`;
+		let mostStarsGivenEntry = `<@${givenSorted[i][1].username}>: ${givenSorted[i][1].amountGiven} times given`;
+		topStars.push(mostStarsReceivedEntry);
+		topGiven.push(mostStarsGivenEntry);
 	}
-	let leaderboard = [topPhils, topStars];
-	return leaderboard;
+	return (leaderboard = [topGiven, topStars]);
 }
 
 export async function checkBalance(username) {
 	let user = await User.findOne({ username: username });
-	let balance = {
+	return (balance = {
 		stars: user.stars,
 		amountGiven: user.amountGiven,
 		lifetimeStars: user.lifetimeStars,
-	};
-	return balance;
+	});
 }
 
 export async function reset() {
