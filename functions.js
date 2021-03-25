@@ -12,7 +12,7 @@ export function postEphemeralMsg(message, event, user = event.user) {
 export async function bonusSurprise(username, event) {
 	let entryChance = Math.floor(Math.random() * 1000);
 	let maxBonus = 4; // Make the max 1 less than what you want the actual max to be, to account for negating 0's
-	if (entryChance > 600) {
+	if (entryChance > 100) {
 		let bonusAmount = Math.floor(Math.random() * maxBonus) + 1;
 		if (Math.random() > 0.9) {
 			bonusAmount += 1;

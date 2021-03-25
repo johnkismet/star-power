@@ -24,6 +24,7 @@ let defaultStars = 2;
 
 export async function checkIfUser(username) {
 	if (!username) return;
+	if (username === "U01SNC0TL9W") return;
 	if (username && username[0] === "@") {
 		username = username.substring(1);
 	}
