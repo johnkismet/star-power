@@ -20,7 +20,7 @@ import handleMessage from "./handleMessage";
 
 const { WebClient } = require("@slack/web-api");
 const { createEventAdapter } = require("@slack/events-api");
-const port = 3000;
+const port = process.env.PORT || 3000;
 export const emoji = ":star-power:";
 const prefix = "!";
 
@@ -153,7 +153,11 @@ slackEvents.on("reaction_removed", (event) => {
 
 slackEvents.on("error", console.error);
 
-slackEvents.start(process.env.PORT || port).then(() => {
-	console.log(`Server started on port ${port}!`);
-	connectToMongo();
-});
+// slackEvents.start().then(() => {
+// 	console.log(`Server started on port ${port}!`);
+// 	connectToMongo();
+// });
+(async () => {
+	const server = await slackEvents.start(port);
+	console.log(`Listening for events on ${server.address().port}`);
+})();
