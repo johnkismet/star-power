@@ -26,5 +26,11 @@ handleTransaction:
 IDEAS:
 - Track amountReceived to track how many shoutouts people get
 - !user {@user} to see that users info
+- Send a message about ideas for reasons to send stars
+
+A few usecases:
+- Facilitators giving mass amounts of stars to their students
+- Students giving stars to coaches for helping
+- 
 
 
