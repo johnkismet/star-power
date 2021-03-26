@@ -23,7 +23,7 @@ export default function handleMessage(message, slackClient, event) {
 					text: {
 						type: "mrkdwn",
 						text:
-							"*How to send stars:* \n Send a message in the #shoutouts channel, write out a nice message recognizing whomever and make sure to @ them and include the amount of stars you want to send to them. I'll handle the rest. \n \n>Thanks for making this @JohnAnderson :star-power:\n\n>@Adam @Joe @Max You guys are the best! :star-power: :star-power: :star-power: \n You can also react to messages with the star-power emote to send them a star!",
+							"*How to send stars:* \n Send a message in the #shoutouts channel, write out a nice message recognizing whomever and make sure to @ them and include the amount of stars you want to send to them. I'll handle the rest. \n \n>Thanks for making this @JohnAnderson :star-power:\n\n>@Adam @Joe @Max You guys are the best! :star-power: \n You can also react to messages with the star-power emote to send them a star!",
 					},
 				},
 				{
@@ -50,7 +50,7 @@ export default function handleMessage(message, slackClient, event) {
 		case "!leaderboard":
 			showLeaderboard().then((leaderboard) => {
 				let givers = `*TOP GIVERS:* \n`;
-				let stars = `*TOP STARS:* \n`;
+				let stars = `*TOP LIFETIME STARS:* \n`;
 				for (let i = 0; i < leaderboard[0].length; i++) {
 					givers += `#${i + 1} ${leaderboard[0][i]} \n`;
 					stars += `#${i + 1} ${leaderboard[1][i]} \n`;
@@ -140,6 +140,34 @@ export default function handleMessage(message, slackClient, event) {
 				reset();
 				sendMsg("Reset!");
 			}
+			break;
+		case "!reminder":
+			channel.postMessage({
+				channel: event.user,
+				blocks: [
+					{
+						type: "section",
+						text: {
+							type: "mrkdwn",
+							text:
+								"We all sometimes get caught up in our own work and forget to recognize those around us. Here's a couple ideas for reasons to send stars: \n\n • Send a star to a coach after they help you \n • Just had a long after school study session with a friend? Send them a star for spending that time with you \n • Are you a facilitator? Send your students some stars for doing great! You can mention however many people you want to in a message and they'll each get however many stars you include \n • Send some stars to the people who go above and beyond! \n \n*Remember, you can react to anyone's message (in a public channel) to send them a star as well!*",
+						},
+					},
+					{
+						type: "divider",
+					},
+					{
+						type: "context",
+						elements: [
+							{
+								type: "mrkdwn",
+								text:
+									"Example message: 'Thanks to @Chok for founding Kenzie! :star-power:' (use the star-power emoji) ",
+							},
+						],
+					},
+				],
+			});
 			break;
 		default:
 			sendHelpMsg();
