@@ -26,3 +26,8 @@ handleTransaction:
 IDEAS:
 - Track amountReceived to track how many shoutouts people get
 - !user {@user} to see that users info
+
+Help message:
+
+
+Star-Power is open source! This is a great way to start reading code and making your own contributions! Even fixing typo's/adding to the README is a great help! <https://github.com/johnkismet/star-power|Here's the Github repository>

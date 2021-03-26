@@ -5,5 +5,6 @@ const userSchema = new mongoose.Schema({
 	stars: Number,
 	amountGiven: Number,
 	lifetimeStars: Number,
+	lifetimeGiven: Number,
 });
 export const User = mongoose.model("User", userSchema);

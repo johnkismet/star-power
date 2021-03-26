@@ -47,6 +47,7 @@ export async function checkIfUser(username) {
 				stars: defaultStars,
 				amountGiven: 0,
 				lifetimeStars: defaultStars,
+				lifetimeGiven: 0,
 			});
 			console.log("NEW USER");
 			return "NEW_USER";
@@ -68,6 +69,7 @@ export async function takeStars(username, amount, skip = false) {
 	// skip == true when removing a reaction since we have to take stars but don't want to increment amountGiven
 	if (!skip) {
 		user.amountGiven += amount;
+		user.lifetimeGiven += amount;
 	} else {
 		user.lifetimeStars -= amount;
 	}
@@ -88,6 +90,7 @@ export async function giveStars(username, amount, decrement = false) {
 	user.stars += amount;
 	if (decrement) {
 		user.amountGiven -= 1;
+		user.lifetimeGiven -= 1;
 	} else {
 		user.lifetimeStars += amount;
 	}
@@ -139,24 +142,26 @@ export async function showLeaderboard() {
 		topStars.push(mostStarsReceivedEntry);
 		topGiven.push(mostStarsGivenEntry);
 	}
-	return (leaderboard = [topGiven, topStars]);
+	let leaderboard = [topGiven, topStars];
+	return leaderboard;
 }
 
 export async function checkBalance(username) {
 	let user = await User.findOne({ username: username });
-	return (balance = {
+	let balance = {
 		stars: user.stars,
 		amountGiven: user.amountGiven,
 		lifetimeStars: user.lifetimeStars,
-	});
+		lifetimeGiven: user.lifetimeGiven,
+	};
+	return balance;
 }
 
+// TODO: Make this automatically run once at the end of every month.
 export async function reset() {
 	let users = await User.find({});
 	users.forEach((user) => {
-		user.stars = defaultStars;
 		user.amountGiven = 0;
-		user.lifetimeStars = defaultStars;
 		user.save();
 	});
 	console.log("Reset :D");
