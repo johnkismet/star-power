@@ -102,12 +102,9 @@ export async function handleTransaction(sender, receiver, starsSent) {
 	for (let i = 0; i < receiver.length; i++) {
 		await checkIfUser(receiver[i]);
 	}
+	console.log("take stars", starsSent);
 	let balanceAfterWithdraw = await takeStars(sender, starsSent);
 	// if multiple people then divide the amount of stars to send by however many people were mentioned
-	if (receiver.length > 1) {
-		// flooring it just to be safe, shouldn't matter but this will prevent any floats from slipping through the cracks
-		starsSent = Math.floor(starsSent / receiver.length);
-	}
 	if (balanceAfterWithdraw >= 0) {
 		for (let user of receiver) {
 			let giveSuccess = await giveStars(user, starsSent);
@@ -124,7 +121,7 @@ export async function handleTransaction(sender, receiver, starsSent) {
 export async function showLeaderboard() {
 	let users = await User.find({});
 	let starsSorted = Object.entries(users).sort(
-		(a, b) => b[1].stars - a[1].stars
+		(a, b) => b[1].lifetimeStars - a[1].lifetimeStars
 	);
 	let givenSorted = Object.entries(users).sort(
 		(a, b) => b[1].amountGiven - a[1].amountGiven
@@ -137,7 +134,7 @@ export async function showLeaderboard() {
 	if (maxCount > starsSorted.length) maxCount = starsSorted.length;
 
 	for (let i = 0; i < maxCount; i++) {
-		let mostStarsReceivedEntry = `<@${starsSorted[i][1].username}>: ${starsSorted[i][1].stars} stars`;
+		let mostStarsReceivedEntry = `<@${starsSorted[i][1].username}>: ${starsSorted[i][1].lifetimeStars} stars`;
 		let mostStarsGivenEntry = `<@${givenSorted[i][1].username}>: ${givenSorted[i][1].amountGiven} times given`;
 		topStars.push(mostStarsReceivedEntry);
 		topGiven.push(mostStarsGivenEntry);

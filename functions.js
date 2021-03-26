@@ -82,7 +82,7 @@ export function greetNewUser(event) {
 				text: {
 					type: "mrkdwn",
 					text:
-						"*Now you're all set to start using Star-Power!* Too often we get caught up in our own work and forget to recognize each other, have a little fun, and celebrate! \n \n *How to send stars:* \n Send a message in the #shoutouts channel, write out a nice message recognizing whomever and make sure to @ them and include the amount of stars you want to send to them. I'll handle the rest. \n \n>Thanks for making this @JohnAnderson :star-power:\n\n>@Adam @Joe @Max You guys are the best! :star-power: :star-power: :star-power: \n You can also react to messages with the star-power emote to send them a star!",
+						"*Now you're all set to start using Star-Power!* Too often we get caught up in our own work and forget to recognize each other, have a little fun, and celebrate! \n \n *How to send stars:* \n Send a message in the #shoutouts channel, write out a nice message recognizing whomever and make sure to @ them and include the amount of stars you want to send to them *(using the star-power emoji)*. I'll handle the rest. \n \n>Thanks for making this @JohnAnderson :star-power:\n\n>@Adam @Joe @Max You guys are the best! :star-power: \n You can also react to messages with the star-power emote to send them a star!",
 				},
 			},
 			{
@@ -130,15 +130,15 @@ export function checkUsersMentioned(usersMentioned, event) {
 	}
 
 	// Check if there is an even way to split stars with multiple people
-	if (usersMentioned.length > 1) {
-		if (starsSent % usersMentioned.length !== 0) {
-			postEphemeralMsg(
-				`I can't split the stars evenly between all the mentioned users, please try again`,
-				event
-			);
-			return;
-		}
-	}
+	// if (usersMentioned.length > 1) {
+	// 	if (starsSent % usersMentioned.length !== 0) {
+	// 		postEphemeralMsg(
+	// 			`I can't split the stars evenly between all the mentioned users, please try again`,
+	// 			event
+	// 		);
+	// 		return;
+	// 	}
+	// }
 	// if present remove @ from beginning of username
 	let sanitizedUsers = [];
 	for (let user of usersMentioned) {

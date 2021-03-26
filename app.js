@@ -49,7 +49,11 @@ slackEvents.on("message", (event) => {
 				if (!message.includes(emoji)) return;
 				let starsSent = message.match(/:star-power:/gi).length;
 				let usersMentioned = message.match(/@\w+/gm);
-
+				if (usersMentioned.length > 1) {
+					// flooring it just to be safe, shouldn't matter but this will prevent any floats from slipping through the cracks
+					starsSent = starsSent * usersMentioned.length;
+					console.log(starsSent);
+				}
 				let sanitizedUsers = checkUsersMentioned(usersMentioned, event);
 
 				// check to make sure user has enough stars
