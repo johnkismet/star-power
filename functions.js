@@ -75,11 +75,14 @@ export function greetNewUser(event) {
 				},
 			},
 			{
+				type: "divider",
+			},
+			{
 				type: "section",
 				text: {
 					type: "mrkdwn",
 					text:
-						"*Now you're all set to start using Star-Power!* Too often we get caught up in our own work and forget to recognize each other, have a little fun, and celebrate! \n \n • In the #shoutouts channel send your praise, just @ the people you're recognizing and include the star-power emoji. Each emoji you send will come from your balance and go into theirs. Like this: \n>Shout out to @JohnAnderson for making Star-Power! :star-power: \n • React to any message with :star-power: to send a free star to the poster",
+						"*Now you're all set to start using Star-Power!* Too often we get caught up in our own work and forget to recognize each other, have a little fun, and celebrate! \n \n *How to send stars:* \n Send a message in the #shoutouts channel, write out a nice message recognizing whomever and make sure to @ them and include the amount of stars you want to send to them. I'll handle the rest. \n \n>Thanks for making this @JohnAnderson :star-power:\n\n>@Adam @Joe @Max You guys are the best! :star-power: :star-power: :star-power: \n You can also react to messages with the star-power emote to send them a star!",
 				},
 			},
 			{
