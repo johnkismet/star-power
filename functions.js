@@ -32,14 +32,13 @@ export async function bonusSurprise(username, event) {
 	}
 }
 
-export async function notEnoughStars(event) {
+export async function notEnoughStars(response, event) {
 	let userBalance = await checkBalance(event.user);
-	let msg = `I'm sorry, you don't have enough stars in your account. `;
-	let balanceMsg =
-		userBalance.stars === 1
-			? "Your balance: 1 star"
-			: `Your balance: ${userBalance.stars} stars`;
-	msg += balanceMsg;
+	let singPluralWord = response === 1 ? "star" : "stars";
+	let msg =
+		response > 0
+			? `Note: You didn't have enough in your balance, so I was only able to give ${response} ${singPluralWord} to each user.`
+			: `Sorry, your balance is ${userBalance.stars} so I couldn't give everyone you mentioned any stars. `;
 	postEphemeralMsg(msg, event);
 }
 

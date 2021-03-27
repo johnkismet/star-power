@@ -31,6 +31,7 @@ export const slackClient = new WebClient(process.env.SLACK_TOKEN);
 slackEvents.on("message", (event) => {
 	let message = event.text;
 	let sender = event.user;
+	let flag = false;
 
 	checkIfUser(sender).then((result) => {
 		if (result === "NEW_USER") {
@@ -52,23 +53,35 @@ slackEvents.on("message", (event) => {
 				if (usersMentioned.length > 1) {
 					// flooring it just to be safe, shouldn't matter but this will prevent any floats from slipping through the cracks
 					starsSent = starsSent * usersMentioned.length;
-					console.log(starsSent);
 				}
 				let sanitizedUsers = checkUsersMentioned(usersMentioned, event);
 
 				// check to make sure user has enough stars
 				setTimeout(() => {
 					userHasEnoughStars(sender, starsSent)
-						.then((userHasEnough) => {
-							if (!userHasEnough) {
-								notEnoughStars(event);
-								return false;
+						.then((response) => {
+							if (response !== true) {
+								// Determine how many stars can be sent to each mentioned user when the sender doesn't have as much as they tried to send
+								if (usersMentioned.length > 1) {
+									starsSent = Math.floor(response / sanitizedUsers.length);
+									// this flag tells handleTransaction that there were > 1 mentionedUsers, so it needs to do some extra calculations to figure out how much to take from the sender vs how much to give to each user.
+									flag = true;
+								} else {
+									starsSent = response;
+								}
+
+								// there's probably a DRYer way to do this, but it's telling the next .then() to return so we doesn't hit the database more than we need to
+								if (starsSent > 0) {
+									notEnoughStars(starsSent, event);
+								} else {
+									notEnoughStars(starsSent, event);
+									return "NOT_ENOUGH";
+								}
 							}
-							return true;
 						})
-						.then((userHasEnough) => {
-							if (!userHasEnough) return;
-							handleTransaction(sender, sanitizedUsers, starsSent).then(
+						.then((response) => {
+							if (response === "NOT_ENOUGH") return;
+							handleTransaction(sender, sanitizedUsers, starsSent, flag).then(
 								(success) => {
 									if (success >= 0) {
 										messageSender(event);

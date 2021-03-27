@@ -60,7 +60,9 @@ export async function checkIfUser(username) {
 
 export async function userHasEnoughStars(username, starsSent) {
 	let foundUser = await User.findOne({ username: username });
-	return !(foundUser.stars < starsSent);
+	if (foundUser.stars < starsSent) {
+		return foundUser.stars;
+	} else return true;
 }
 
 export async function takeStars(username, amount, skip = false) {
@@ -98,13 +100,16 @@ export async function giveStars(username, amount, decrement = false) {
 	return user.stars;
 }
 
-export async function handleTransaction(sender, receiver, starsSent) {
+export async function handleTransaction(sender, receiver, starsSent, flag) {
 	for (let i = 0; i < receiver.length; i++) {
 		await checkIfUser(receiver[i]);
 	}
-	console.log("take stars", starsSent);
-	let balanceAfterWithdraw = await takeStars(sender, starsSent);
-	// if multiple people then divide the amount of stars to send by however many people were mentioned
+	let starsToTake = starsSent;
+	if (flag) {
+		starsToTake = starsSent * receiver.length;
+	}
+	let balanceAfterWithdraw = await takeStars(sender, starsToTake);
+	// if multiple people then divide the amount of stars wto send by however many people were mentioned
 	if (balanceAfterWithdraw >= 0) {
 		for (let user of receiver) {
 			let giveSuccess = await giveStars(user, starsSent);
