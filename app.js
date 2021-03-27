@@ -28,10 +28,80 @@ const prefix = "!";
 const slackEvents = createEventAdapter(process.env.SIGNING_SECRET);
 export const slackClient = new WebClient(process.env.SLACK_TOKEN);
 // TODO: Handle replies in thread
-slackEvents.on("message", (event) => {
+
+async function asyncFunc(event) {
 	let message = event.text;
 	let sender = event.user;
 	let flag = false;
+
+	let starsSent = message.match(/:star-power:/gi).length;
+	let usersMentioned = message.match(/@\w+/gm);
+	let sanitizedUsers = [];
+	for (let user of usersMentioned) {
+		if (user[0] === "@") {
+			user = user.substring(1);
+			sanitizedUsers.push(user);
+		}
+	}
+
+	sanitizedUsers = new Set(sanitizedUsers);
+
+	if (sanitizedUsers.length > 1) {
+		starsSent = starsSent * sanitizedUsers.length;
+	}
+
+	try {
+		await checkUsersMentioned(usersMentioned, event);
+		let response = await userHasEnoughStars(sender, starsSent);
+		if (response !== true) {
+			// Determine how many stars can be sent to each mentioned user when the sender doesn't have as much as they tried to send
+			if (usersMentioned.length > 1) {
+				starsSent = Math.floor(response / sanitizedUsers.length);
+				// this flag tells handleTransaction that there were > 1 mentionedUsers, so it needs to do some extra calculations to figure out how much to take from the sender vs how much to give to each user.
+				flag = true;
+			} else {
+				starsSent = response;
+			}
+
+			// there's probably a DRYer way to do this, but it's telling the next .then() to return so we doesn't hit the database more than we need to
+			if (starsSent > 0) {
+				notEnoughStars(starsSent, event);
+			} else {
+				notEnoughStars(starsSent, event);
+				response = "NOT_ENOUGH";
+			}
+		}
+		if (response === "NOT_ENOUGH") return;
+		console.log(`Before: ${starsSent}`);
+		const success = await handleTransaction(
+			sender,
+			sanitizedUsers,
+			starsSent,
+			flag
+		);
+
+		if (success >= 0) {
+			messageSender(event);
+			messageMentionedUsers(sanitizedUsers, event);
+			setTimeout(() => {
+				bonusSurprise(sender, event);
+			}, 1000);
+		} else {
+			postEphemeralMsg(`Sorry, something went wrong on my end.`, event);
+		}
+	} catch (err) {
+		console.log(err);
+		return;
+	}
+}
+slackEvents.on("message", async (event) => {
+	let message = event.text;
+	let sender = event.user;
+	if (
+		event.subtype === "message_changed" ||
+		event.subtype === "message_deleted"
+	)
+		return;
 	checkIfUser(sender).then((result) => {
 		if (result === "NEW_USER") {
 			greetNewUser(event);
@@ -46,63 +116,26 @@ slackEvents.on("message", (event) => {
 				}
 				break;
 			case "channel":
+				// This is the cheap way to make it so staff can get infinite stars to dole out since they don't participate in the reward system
 				if (message === "!motherlode") {
 					handleMessage(message, slackClient, event);
 					return;
 				}
 
-				if (!message.includes(emoji)) return;
-				let starsSent = message.match(/:star-power:/gi).length;
-				let usersMentioned = message.match(/@\w+/gm);
-				if (usersMentioned.length > 1) {
-					// flooring it just to be safe, shouldn't matter but this will prevent any floats from slipping through the cracks
-					starsSent = starsSent * usersMentioned.length;
+				if (!message.includes(emoji)) {
+					postEphemeralMsg(
+						"Did you mean to include the star-power emoji in this message? If you want to give the people you mentioned a star please copy/paste your message and add the star-power emoji in it :)",
+						event
+					);
+					return;
 				}
-				let sanitizedUsers = checkUsersMentioned(usersMentioned, event);
+				console;
+				asyncFunc(event);
 
 				// check to make sure user has enough stars
-				setTimeout(() => {
-					userHasEnoughStars(sender, starsSent)
-						.then((response) => {
-							if (response !== true) {
-								// Determine how many stars can be sent to each mentioned user when the sender doesn't have as much as they tried to send
-								if (usersMentioned.length > 1) {
-									starsSent = Math.floor(response / sanitizedUsers.length);
-									// this flag tells handleTransaction that there were > 1 mentionedUsers, so it needs to do some extra calculations to figure out how much to take from the sender vs how much to give to each user.
-									flag = true;
-								} else {
-									starsSent = response;
-								}
+				// setTimeout(() => {
 
-								// there's probably a DRYer way to do this, but it's telling the next .then() to return so we doesn't hit the database more than we need to
-								if (starsSent > 0) {
-									notEnoughStars(starsSent, event);
-								} else {
-									notEnoughStars(starsSent, event);
-									return "NOT_ENOUGH";
-								}
-							}
-						})
-						.then((response) => {
-							if (response === "NOT_ENOUGH") return;
-							handleTransaction(sender, sanitizedUsers, starsSent, flag).then(
-								(success) => {
-									if (success >= 0) {
-										messageSender(event);
-										messageMentionedUsers(sanitizedUsers, event);
-										setTimeout(() => {
-											bonusSurprise(sender, event);
-										}, 1000);
-									} else {
-										postEphemeralMsg(
-											`Sorry, something went wrong on my end.`,
-											event
-										);
-									}
-								}
-							);
-						});
-				}, 1000);
+				// }, 1000);
 				break;
 		}
 	});
