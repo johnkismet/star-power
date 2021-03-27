@@ -3,92 +3,77 @@ require("dotenv").config();
 import {
 	connectToMongo,
 	checkIfUser,
-	userHasEnoughStars,
-	handleTransaction,
 	giveStars,
 	takeStars,
 } from "./backend/main";
-import {
-	bonusSurprise,
-	notEnoughStars,
-	messageMentionedUsers,
-	messageSender,
-	greetNewUser,
-	postEphemeralMsg,
-	checkUsersMentioned,
-} from "./functions";
-import handleMessage from "./handleMessage";
+
+import { handleMessage, handleCommand } from "./handleFunction";
+import { greetNewUser, postEphemeralMsg } from "./functions";
 
 const { WebClient } = require("@slack/web-api");
 const { createEventAdapter } = require("@slack/events-api");
 const port = 3000;
 export const emoji = ":star-power:";
 const prefix = "!";
-
 const slackEvents = createEventAdapter(process.env.SIGNING_SECRET);
 export const slackClient = new WebClient(process.env.SLACK_TOKEN);
 // TODO: Handle replies in thread
-slackEvents.on("message", (event) => {
+
+slackEvents.on("message", async (event) => {
 	let message = event.text;
 	let sender = event.user;
+	if (
+		event.subtype === "message_changed" ||
+		event.subtype === "message_deleted" ||
+		event.subtype === "bot_message" ||
+		event.subtype === "channel_archive" ||
+		event.subtype === "channel_join" ||
+		event.subtype === "channel_leave" ||
+		event.subtype === "channel_name" ||
+		event.subtype === "channel_topic" ||
+		event.subtype === "channel_unarchive" ||
+		event.subtype === "file_mention" ||
+		event.subtype === "channel_posting_permissions"
+	)
+		return;
 
 	checkIfUser(sender).then((result) => {
 		if (result === "NEW_USER") {
 			greetNewUser(event);
+		} else if (result === "NEEDS_REMINDER") {
+			handleCommand("!reminder", slackClient, event);
 		}
+	});
+
+	setTimeout(() => {
 		switch (event.channel_type) {
 			case "im":
 				if (message[0] === prefix) {
-					handleMessage(message, slackClient, event);
+					handleCommand(message, slackClient, event);
 					return;
 				} else {
-					handleMessage("!help", slackClient, event);
+					handleCommand("!help", slackClient, event);
 				}
 				break;
 			case "channel":
-				if (!message.includes(emoji)) return;
-				let starsSent = message.match(/:star-power:/gi).length;
-				let usersMentioned = message.match(/@\w+/gm);
-				if (usersMentioned.length > 1) {
-					// flooring it just to be safe, shouldn't matter but this will prevent any floats from slipping through the cracks
-					starsSent = starsSent * usersMentioned.length;
-					console.log(starsSent);
+				// This is the cheap way to make it so staff can get infinite stars to dole out since they don't participate in the reward system
+				if (message === "!motherlode") {
+					handleCommand(message, slackClient, event);
+					return;
 				}
-				let sanitizedUsers = checkUsersMentioned(usersMentioned, event);
-
-				// check to make sure user has enough stars
-				setTimeout(() => {
-					userHasEnoughStars(sender, starsSent)
-						.then((userHasEnough) => {
-							if (!userHasEnough) {
-								notEnoughStars(event);
-								return false;
-							}
-							return true;
-						})
-						.then((userHasEnough) => {
-							if (!userHasEnough) return;
-							handleTransaction(sender, sanitizedUsers, starsSent).then(
-								(success) => {
-									if (success >= 0) {
-										messageSender(event);
-										messageMentionedUsers(sanitizedUsers, event);
-										setTimeout(() => {
-											bonusSurprise(sender, event);
-										}, 1000);
-									} else {
-										postEphemeralMsg(
-											`Sorry, something went wrong on my end.`,
-											event
-										);
-									}
-								}
-							);
-						});
-				}, 1000);
+				// the 2nd condition checks for if the message is in a thread. It's a little wonky, but the event object doesn't have any other information to use.
+				if (!message.includes(emoji) && event.parent_user_id === undefined) {
+					postEphemeralMsg(
+						"Did you mean to include the star-power emoji in this message? \n If you want to give the people you mentioned a star please copy/paste your message and add the star-power emoji in it :) \n Otherwise ignore this message",
+						event
+					);
+					return;
+				} else if (message.includes(emoji)) {
+					handleMessage(event);
+				}
 				break;
 		}
-	});
+	}, 1000);
 });
 
 slackEvents.on("reaction_added", (event) => {

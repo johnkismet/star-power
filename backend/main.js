@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+import { handleCommand } from "../handleFunction";
 import { User } from "./models/User";
 let connectedToDB = false;
 
@@ -36,9 +37,14 @@ export async function checkIfUser(username) {
 		return "ERROR";
 	}
 
-	let success = await User.findOne({ username: username });
+	let user = await User.findOne({ username: username });
 
-	if (success) {
+	if (user) {
+		if (user.needsReminder) {
+			user.needsReminder = false;
+			user.save();
+			return "NEEDS_REMINDER";
+		}
 		return "EXISTING_USER";
 	} else {
 		try {
@@ -48,6 +54,7 @@ export async function checkIfUser(username) {
 				amountGiven: 0,
 				lifetimeStars: defaultStars,
 				lifetimeGiven: 0,
+				needsReminder: true,
 			});
 			console.log("NEW USER");
 			return "NEW_USER";
@@ -60,7 +67,9 @@ export async function checkIfUser(username) {
 
 export async function userHasEnoughStars(username, starsSent) {
 	let foundUser = await User.findOne({ username: username });
-	return !(foundUser.stars < starsSent);
+	if (foundUser.stars < starsSent) {
+		return foundUser.stars;
+	} else return true;
 }
 
 export async function takeStars(username, amount, skip = false) {
@@ -98,13 +107,13 @@ export async function giveStars(username, amount, decrement = false) {
 	return user.stars;
 }
 
-export async function handleTransaction(sender, receiver, starsSent) {
-	for (let i = 0; i < receiver.length; i++) {
-		await checkIfUser(receiver[i]);
+export async function handleTransaction(sender, receiver, starsSent, flag) {
+	let starsToTake = starsSent;
+	if (flag) {
+		starsToTake = starsSent * receiver.size;
 	}
-	console.log("take stars", starsSent);
-	let balanceAfterWithdraw = await takeStars(sender, starsSent);
-	// if multiple people then divide the amount of stars to send by however many people were mentioned
+	let balanceAfterWithdraw = await takeStars(sender, starsToTake);
+	// if multiple people then divide the amount of stars wto send by however many people were mentioned
 	if (balanceAfterWithdraw >= 0) {
 		for (let user of receiver) {
 			let giveSuccess = await giveStars(user, starsSent);
@@ -162,4 +171,14 @@ export async function reset() {
 		user.save();
 	});
 	console.log("Reset :D");
+}
+
+export async function motherlode(username) {
+	try {
+		let user = await User.findOne({ username: username });
+		user.stars += 50000;
+		user.save();
+	} catch (err) {
+		console.log(err);
+	}
 }

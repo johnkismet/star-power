@@ -1,6 +1,11 @@
-import { checkBalance, giveStars, takeStars } from "./backend/main";
+import {
+	checkBalance,
+	giveStars,
+	takeStars,
+	checkIfUser,
+} from "./backend/main";
 import { slackClient, emoji } from "./app";
-import handleMessage from "./handleMessage";
+import { handleMessage, handleCommand } from "./handleFunction";
 
 export function postEphemeralMsg(message, event, user = event.user) {
 	slackClient.chat.postEphemeral({
@@ -32,20 +37,19 @@ export async function bonusSurprise(username, event) {
 	}
 }
 
-export async function notEnoughStars(event) {
+export async function notEnoughStars(response, event) {
 	let userBalance = await checkBalance(event.user);
-	let msg = `I'm sorry, you don't have enough stars in your account. `;
-	let balanceMsg =
-		userBalance.stars === 1
-			? "Your balance: 1 star"
-			: `Your balance: ${userBalance.stars} stars`;
-	msg += balanceMsg;
+	let singPluralWord = response === 1 ? "star" : "stars";
+	let msg =
+		response > 0
+			? `Note: You didn't have enough in your balance, so I was only able to give ${response} ${singPluralWord} to each user.`
+			: `Sorry, your balance is ${userBalance.stars} so I couldn't send any stars. `;
 	postEphemeralMsg(msg, event);
 }
 
 export async function messageSender(event) {
 	let userBalance = await checkBalance(event.user);
-	let msg = `Thanks for sharing your stars! Your new balance is ${userBalance.stars} stars and you have now given ${userBalance.amountGiven} stars! DM me !help for more features`;
+	let msg = `Thanks for sharing your stars! Your new balance is ${userBalance.stars} stars and you have now given ${userBalance.amountGiven} stars this month! DM me !help for more features`;
 	postEphemeralMsg(msg, event);
 }
 
@@ -101,51 +105,27 @@ export function greetNewUser(event) {
 		],
 	});
 	setTimeout(() => {
-		handleMessage("!balance", slackClient, event);
+		handleCommand("!balance", slackClient, event);
 	}, 500);
 }
 
-export function checkUsersMentioned(usersMentioned, event) {
-	if (!usersMentioned) {
-		postEphemeralMsg(
-			"I can't give any stars because you didn't @ anyone in your shoutout",
-			event
-		);
-		return;
-	}
-
+export async function checkUsersMentioned(usersMentioned, event) {
 	// Guard for trying to give yourself/bot stars
 	for (let user of usersMentioned) {
 		if (user.includes(event.user)) {
 			postEphemeralMsg("You can't send stars to yourself.", event);
-			return;
+			return false;
 		}
 		if (user.includes("U01SNC0TL9W")) {
 			postEphemeralMsg(
 				"Thanks, but no thanks - I don't have any use for stars",
 				event
 			);
-			return;
+			return false;
 		}
 	}
 
-	// Check if there is an even way to split stars with multiple people
-	// if (usersMentioned.length > 1) {
-	// 	if (starsSent % usersMentioned.length !== 0) {
-	// 		postEphemeralMsg(
-	// 			`I can't split the stars evenly between all the mentioned users, please try again`,
-	// 			event
-	// 		);
-	// 		return;
-	// 	}
-	// }
-	// if present remove @ from beginning of username
-	let sanitizedUsers = [];
 	for (let user of usersMentioned) {
-		if (user[0] === "@") {
-			user = user.substring(1);
-			sanitizedUsers.push(user);
-		}
+		await checkIfUser(user);
 	}
-	return sanitizedUsers;
 }
