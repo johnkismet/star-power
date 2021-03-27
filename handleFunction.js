@@ -4,6 +4,7 @@ import {
 	checkBalance,
 	reset,
 	motherlode,
+	showLeaderboard,
 } from "./backend/main";
 
 import {

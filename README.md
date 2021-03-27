@@ -30,13 +30,27 @@ Users can also react on any message with :star-power: to give a freebie star to 
 
 ## Reward Ideas
 
+If you have an idea you'd like to contribute DM John Anderson on Slack!
+Also, please note these are just brainstorm ideas. I understand some of these may not be viable, but I see value in listing them anyways.
 **--- No money necessary ---**
 
 - Get access to a special members-only slack channel (The Gold Lounge)
+  - The gold lounge could have scheduled online game days (like Jackbox, chess, etc)
+  - There could also be scheduled movie nights (using a watch-together app/website)
+  - It could have scheduled contests between members
 - 10 extra credit points (redeemable once)
+- IOU for one rubric point (under a certain amount of points to the assignment)
 - They get to shout out something on Kenzie social media
+- Chok gets a pie in the face (or something like that. This would be worth 1,000 stars and everyone can put their stars in the pool)
+- Be host in your facilitator's zoom call
+- Early release to lunchtime
+- Choose one group member for upcoming group project
+- Lunch with Chok (or some other big name.)
+- Facilitator (or higher) shaves his beard (would need a volunteer)
 
 **--- Involves money ---**
+
+Alternatively, people could buy a raffle ticket to get a chance to get one of these rewards each month.
 
 - Kenzie makes a donation to a charity in students name - (1 star = 10 pennies)
 - Get Kenzie merch
