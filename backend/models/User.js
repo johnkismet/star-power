@@ -6,5 +6,6 @@ const userSchema = new mongoose.Schema({
 	amountGiven: Number,
 	lifetimeStars: Number,
 	lifetimeGiven: Number,
+	needsReminder: Boolean,
 });
 export const User = mongoose.model("User", userSchema);

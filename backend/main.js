@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+import { handleCommand } from "../handleFunction";
 import { User } from "./models/User";
 let connectedToDB = false;
 
@@ -36,9 +37,14 @@ export async function checkIfUser(username) {
 		return "ERROR";
 	}
 
-	let success = await User.findOne({ username: username });
+	let user = await User.findOne({ username: username });
 
-	if (success) {
+	if (user) {
+		if (user.needsReminder) {
+			user.needsReminder = false;
+			user.save();
+			return "NEEDS_REMINDER";
+		}
 		return "EXISTING_USER";
 	} else {
 		try {
@@ -48,6 +54,7 @@ export async function checkIfUser(username) {
 				amountGiven: 0,
 				lifetimeStars: defaultStars,
 				lifetimeGiven: 0,
+				needsReminder: true,
 			});
 			console.log("NEW USER");
 			return "NEW_USER";
@@ -167,7 +174,11 @@ export async function reset() {
 }
 
 export async function motherlode(username) {
-	let user = await User.findOne({ username: username });
-	user.stars += 50000;
-	user.save();
+	try {
+		let user = await User.findOne({ username: username });
+		user.stars += 50000;
+		user.save();
+	} catch (err) {
+		console.log(err);
+	}
 }

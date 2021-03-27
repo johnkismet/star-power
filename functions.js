@@ -5,7 +5,7 @@ import {
 	checkIfUser,
 } from "./backend/main";
 import { slackClient, emoji } from "./app";
-import handleMessage from "./handleMessage";
+import { handleMessage, handleCommand } from "./handleFunction";
 
 export function postEphemeralMsg(message, event, user = event.user) {
 	slackClient.chat.postEphemeral({
@@ -105,7 +105,7 @@ export function greetNewUser(event) {
 		],
 	});
 	setTimeout(() => {
-		handleMessage("!balance", slackClient, event);
+		handleCommand("!balance", slackClient, event);
 	}, 500);
 }
 
