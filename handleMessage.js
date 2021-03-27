@@ -1,4 +1,9 @@
-import { showLeaderboard, checkBalance, reset } from "./backend/main";
+import {
+	showLeaderboard,
+	checkBalance,
+	reset,
+	motherlode,
+} from "./backend/main";
 
 export default function handleMessage(message, slackClient, event) {
 	if (event.user === "U01SNC0TL9W") return;
@@ -136,10 +141,9 @@ export default function handleMessage(message, slackClient, event) {
 			sendHelpMsg();
 			break;
 		case "!reset":
-			if (event.user === "U019CRDTG3S") {
-				reset();
-				sendMsg("Reset!");
-			}
+			if (event.user !== "U019CRDTG3S") return;
+			reset();
+			sendMsg("Reset!");
 			break;
 		case "!reminder":
 			channel.postMessage({
@@ -167,6 +171,15 @@ export default function handleMessage(message, slackClient, event) {
 						],
 					},
 				],
+			});
+			break;
+		case "!motherlode":
+			if (event.channel !== "C01SDRQFE7Q") return;
+			motherlode(event.user);
+			channel.postEphemeral({
+				channel: event.channel,
+				user: event.user,
+				text: "You now have 50,000 more stars! Use them wisely.",
 			});
 			break;
 		default:

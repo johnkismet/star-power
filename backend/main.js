@@ -168,3 +168,9 @@ export async function reset() {
 	});
 	console.log("Reset :D");
 }
+
+export async function motherlode(username) {
+	let user = await User.findOne({ username: username });
+	user.stars += 50000;
+	user.save();
+}

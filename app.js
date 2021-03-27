@@ -32,7 +32,6 @@ slackEvents.on("message", (event) => {
 	let message = event.text;
 	let sender = event.user;
 	let flag = false;
-
 	checkIfUser(sender).then((result) => {
 		if (result === "NEW_USER") {
 			greetNewUser(event);
@@ -47,6 +46,11 @@ slackEvents.on("message", (event) => {
 				}
 				break;
 			case "channel":
+				if (message === "!motherlode") {
+					handleMessage(message, slackClient, event);
+					return;
+				}
+
 				if (!message.includes(emoji)) return;
 				let starsSent = message.match(/:star-power:/gi).length;
 				let usersMentioned = message.match(/@\w+/gm);
