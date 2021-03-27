@@ -103,13 +103,11 @@ export async function giveStars(username, amount, decrement = false) {
 export async function handleTransaction(sender, receiver, starsSent, flag) {
 	let starsToTake = starsSent;
 	if (flag) {
-		starsToTake = starsSent * receiver.length;
+		starsToTake = starsSent * receiver.size;
 	}
-	console.log(`Taking: ${starsToTake}`);
 	let balanceAfterWithdraw = await takeStars(sender, starsToTake);
 	// if multiple people then divide the amount of stars wto send by however many people were mentioned
 	if (balanceAfterWithdraw >= 0) {
-		console.log(`Giving: ${starsSent}`);
 		for (let user of receiver) {
 			let giveSuccess = await giveStars(user, starsSent);
 			if (!giveSuccess) {

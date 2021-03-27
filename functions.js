@@ -49,7 +49,7 @@ export async function notEnoughStars(response, event) {
 
 export async function messageSender(event) {
 	let userBalance = await checkBalance(event.user);
-	let msg = `Thanks for sharing your stars! Your new balance is ${userBalance.stars} stars and you have now given ${userBalance.amountGiven} stars! DM me !help for more features`;
+	let msg = `Thanks for sharing your stars! Your new balance is ${userBalance.stars} stars and you have now given ${userBalance.amountGiven} stars this month! DM me !help for more features`;
 	postEphemeralMsg(msg, event);
 }
 
@@ -110,14 +110,6 @@ export function greetNewUser(event) {
 }
 
 export async function checkUsersMentioned(usersMentioned, event) {
-	if (!usersMentioned) {
-		postEphemeralMsg(
-			"I can't give any stars because you didn't @ anyone in your shoutout",
-			event
-		);
-		return false;
-	}
-
 	// Guard for trying to give yourself/bot stars
 	for (let user of usersMentioned) {
 		if (user.includes(event.user)) {
@@ -136,16 +128,4 @@ export async function checkUsersMentioned(usersMentioned, event) {
 	for (let user of usersMentioned) {
 		await checkIfUser(user);
 	}
-
-	// Check if there is an even way to split stars with multiple people
-	// if (usersMentioned.length > 1) {
-	// 	if (starsSent % usersMentioned.length !== 0) {
-	// 		postEphemeralMsg(
-	// 			`I can't split the stars evenly between all the mentioned users, please try again`,
-	// 			event
-	// 		);
-	// 		return;
-	// 	}
-	// }
-	// if present remove @ from beginning of username
 }

@@ -36,6 +36,13 @@ async function asyncFunc(event) {
 
 	let starsSent = message.match(/:star-power:/gi).length;
 	let usersMentioned = message.match(/@\w+/gm);
+	if (!usersMentioned) {
+		postEphemeralMsg(
+			"I can't give any stars because you didn't @ anyone in your shoutout",
+			event
+		);
+		return false;
+	}
 	let sanitizedUsers = [];
 	for (let user of usersMentioned) {
 		if (user[0] === "@") {
@@ -43,36 +50,28 @@ async function asyncFunc(event) {
 			sanitizedUsers.push(user);
 		}
 	}
-
 	sanitizedUsers = new Set(sanitizedUsers);
-
-	if (sanitizedUsers.length > 1) {
-		starsSent = starsSent * sanitizedUsers.length;
-	}
+	if (sanitizedUsers.size > 1) starsSent = starsSent * sanitizedUsers.size;
 
 	try {
-		await checkUsersMentioned(usersMentioned, event);
+		await checkUsersMentioned(sanitizedUsers, event);
 		let response = await userHasEnoughStars(sender, starsSent);
 		if (response !== true) {
 			// Determine how many stars can be sent to each mentioned user when the sender doesn't have as much as they tried to send
-			if (usersMentioned.length > 1) {
-				starsSent = Math.floor(response / sanitizedUsers.length);
+			if (sanitizedUsers.size > 1) {
+				if (response !== 0) {
+					starsSent = Math.floor(response / sanitizedUsers.size);
+				} else {
+					starsSent = 0;
+				}
 				// this flag tells handleTransaction that there were > 1 mentionedUsers, so it needs to do some extra calculations to figure out how much to take from the sender vs how much to give to each user.
 				flag = true;
 			} else {
 				starsSent = response;
 			}
-
-			// there's probably a DRYer way to do this, but it's telling the next .then() to return so we doesn't hit the database more than we need to
-			if (starsSent > 0) {
-				notEnoughStars(starsSent, event);
-			} else {
-				notEnoughStars(starsSent, event);
-				response = "NOT_ENOUGH";
-			}
+			notEnoughStars(starsSent, event);
+			if (starsSent === 0) return;
 		}
-		if (response === "NOT_ENOUGH") return;
-		console.log(`Before: ${starsSent}`);
 		const success = await handleTransaction(
 			sender,
 			sanitizedUsers,
@@ -99,13 +98,24 @@ slackEvents.on("message", async (event) => {
 	let sender = event.user;
 	if (
 		event.subtype === "message_changed" ||
-		event.subtype === "message_deleted"
+		event.subtype === "message_deleted" ||
+		event.subtype === "bot_message" ||
+		event.subtype === "channel_archive" ||
+		event.subtype === "channel_join" ||
+		event.subtype === "channel_leave" ||
+		event.subtype === "channel_name" ||
+		event.subtype === "channel_topic" ||
+		event.subtype === "channel_unarchive" ||
+		event.subtype === "file_mention" ||
+		event.subtype === "asd" ||
+		event.subtype === "channel_posting_permissions"
 	)
 		return;
 	checkIfUser(sender).then((result) => {
 		if (result === "NEW_USER") {
 			greetNewUser(event);
 		}
+		// console.log(event);
 		switch (event.channel_type) {
 			case "im":
 				if (message[0] === prefix) {
@@ -121,16 +131,15 @@ slackEvents.on("message", async (event) => {
 					handleMessage(message, slackClient, event);
 					return;
 				}
-
-				if (!message.includes(emoji)) {
+				if (!message.includes(emoji) && event.parent_user_id === undefined) {
 					postEphemeralMsg(
 						"Did you mean to include the star-power emoji in this message? If you want to give the people you mentioned a star please copy/paste your message and add the star-power emoji in it :)",
 						event
 					);
 					return;
+				} else if (message.includes(emoji)) {
+					asyncFunc(event);
 				}
-				console;
-				asyncFunc(event);
 
 				// check to make sure user has enough stars
 				// setTimeout(() => {
