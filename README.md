@@ -31,7 +31,11 @@ Users can also react on any message with :star-power: to give a freebie star to 
 ## Reward Ideas
 
 If you have an idea you'd like to contribute DM John Anderson on Slack!
+
 Also, please note these are just brainstorm ideas. I understand some of these may not be viable, but I see value in listing them anyways.
+
+Lastly, StarPower shouldn't need rewards to thrive. Think of Reddit, there's hardly any use for Karma but that system still works well. So even if we never offer any of these rewards it should be okay.
+
 **--- No money necessary ---**
 
 - Get access to a special members-only slack channel (The Gold Lounge)
@@ -43,7 +47,6 @@ Also, please note these are just brainstorm ideas. I understand some of these ma
 - They get to shout out something on Kenzie social media
 - Chok gets a pie in the face (or something like that. This would be worth 1,000 stars and everyone can put their stars in the pool)
 - Be host in your facilitator's zoom call
-- Early release to lunchtime
 - Choose one group member for upcoming group project
 - Lunch with Chok (or some other big name.)
 - Facilitator (or higher) shaves his beard (would need a volunteer)
