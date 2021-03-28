@@ -17,9 +17,19 @@ export const emoji = ":star-power:";
 const prefix = "!";
 const slackEvents = createEventAdapter(process.env.SIGNING_SECRET);
 export const slackClient = new WebClient(process.env.SLACK_TOKEN);
-// TODO: Handle replies in thread
 
 slackEvents.on("message", async (event) => {
+	/*
+	Overall message flow:
+	1. Check if sender is a user in the db
+	2. Check if message includes Star-Power emoji (unless it's in a thread)
+	3. Sanitize users mentioned then check them
+	4. Check if sender has enough stars
+	5. Determine how many stars to take/give
+	6. Handle the transaction
+		a. Take stars from sender
+		b. Give stars to users mentioned
+	*/
 	let message = event.text;
 	let sender = event.user;
 	if (
@@ -40,6 +50,7 @@ slackEvents.on("message", async (event) => {
 	checkIfUser(sender).then((result) => {
 		if (result === "NEW_USER") {
 			greetNewUser(event);
+			// result == "NEEDS_REMINDER" after their second message
 		} else if (result === "NEEDS_REMINDER") {
 			handleCommand("!reminder", slackClient, event);
 		}
