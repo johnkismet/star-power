@@ -5,6 +5,7 @@ import {
 	reset,
 	motherlode,
 	showLeaderboard,
+	getUserInfo,
 } from "./backend/main";
 
 import {
@@ -18,8 +19,10 @@ import {
 } from "./functions";
 
 export function handleCommand(message, slackClient, event) {
+	// if event.user === Star-Power return
 	if (event.user === "U01SNC0TL9W") return;
-	let channel = slackClient.chat;
+
+	const channel = slackClient.chat;
 	function sendHelpMsg() {
 		channel.postMessage({
 			channel: event.channel,
@@ -221,6 +224,16 @@ export async function handleMessage(event) {
 		}
 	}
 	sanitizedUsers = new Set(sanitizedUsers);
+
+	if (message.includes("!user")) {
+		// if channel !== facilitator-channel
+		if (event.channel !== "C01SDRQFE7Q") return;
+		if (sanitizedUsers.size < 1) {
+			postEphemeralMsg("You must include a user", event);
+		}
+		getUserInfo(sanitizedUsers);
+	}
+
 	if (sanitizedUsers.size > 1) starsSent = starsSent * sanitizedUsers.size;
 
 	try {

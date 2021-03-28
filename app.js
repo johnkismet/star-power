@@ -61,6 +61,11 @@ slackEvents.on("message", async (event) => {
 					handleCommand(message, slackClient, event);
 					return;
 				}
+				if (message.includes("!user")) {
+					console.log("sd");
+					handleMessage(message, slackClient, event);
+					return;
+				}
 				// the 2nd condition checks for if the message is in a thread. It's a little wonky, but the event object doesn't have any other information to use.
 				if (!message.includes(emoji) && event.parent_user_id === undefined) {
 					postEphemeralMsg(

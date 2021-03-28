@@ -182,3 +182,7 @@ export async function motherlode(username) {
 		console.log(err);
 	}
 }
+
+export async function getUserInfo(users) {
+	console.log("user info");
+}
