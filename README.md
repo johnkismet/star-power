@@ -60,7 +60,7 @@ For local development:
 6. Take the HTTPS forwarding address and change the Request URL on the [Slack Event Subscriptions page](https://api.slack.com/apps/A01SB6HNPCZ/event-subscriptions?)
    a. Make sure you append /slack/events to the end of the forwarding address
    b. Also make sure Slack can verify the link
-
+   
 ## Reward Ideas
 
 If you have an idea you'd like to contribute DM John Anderson on Slack!
