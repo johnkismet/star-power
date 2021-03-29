@@ -153,6 +153,7 @@ export function handleCommand(message, slackClient, event) {
 			sendHelpMsg();
 			break;
 		case "!reset":
+			// if event.user == StarPower return
 			if (event.user !== "U019CRDTG3S") return;
 			reset();
 			sendMsg("Reset!");

@@ -17,6 +17,7 @@ export const emoji = ":star-power:";
 const prefix = "!";
 const slackEvents = createEventAdapter(process.env.SIGNING_SECRET);
 export const slackClient = new WebClient(process.env.SLACK_TOKEN);
+console.log(slackClient.users.identity);
 
 slackEvents.on("message", async (event) => {
 	/*
@@ -32,6 +33,7 @@ slackEvents.on("message", async (event) => {
 	*/
 	let message = event.text;
 	let sender = event.user;
+	// console.log(event);
 	if (
 		event.subtype === "message_changed" ||
 		event.subtype === "message_deleted" ||
