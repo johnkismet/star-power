@@ -46,6 +46,8 @@ Users can also react on any message with :star-power: to give a freebie star to 
 
 For local development:
 
+You will need collaborator status on the Star-Power app page to run the bot
+
 1. Clone this repo
 
 2. NPM install while inside the repo directory
@@ -58,7 +60,7 @@ For local development:
 
 5. Use [Ngrok](https://ngrok.com/) to set up localhost tunnel
 
-   a. Syntax: ngrok http { desired port number }
+   a. Syntax: `ngrok http { desired port number }`
    
 6. Take the HTTPS forwarding address and change the Request URL on the [Slack Event Subscriptions page](https://api.slack.com/apps/A01SB6HNPCZ/event-subscriptions?)
 
