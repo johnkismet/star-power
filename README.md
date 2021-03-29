@@ -50,7 +50,7 @@ You will need collaborator status on the Star-Power app page to run the bot
 
 1. Clone this repo
 
-2. NPM install while inside the repo directory
+2. Run `npm install` while inside the repo directory
 
 3. Set up enviroment variables. Must have MONGO_URI, SIGNING_SECRET, and SLACK_TOKEN
 
