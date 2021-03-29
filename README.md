@@ -53,11 +53,15 @@ For local development:
 3. Set up enviroment variables. Must have MONGO_URI, SIGNING_SECRET, and SLACK_TOKEN
 
 4. `npm run dev` to start nodemon development
+
    a. Make sure you do this before trying to the next steps, or else you may be confused by ngrok receiving the slack events but the bot isn't working.
 
 5. Use [Ngrok](https://ngrok.com/) to set up localhost tunnel
+
    a. Syntax: ngrok http { desired port number }
+   
 6. Take the HTTPS forwarding address and change the Request URL on the [Slack Event Subscriptions page](https://api.slack.com/apps/A01SB6HNPCZ/event-subscriptions?)
+
    a. Make sure you append /slack/events to the end of the forwarding address
    b. Also make sure Slack can verify the link
    
