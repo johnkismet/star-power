@@ -58,15 +58,21 @@ You will need collaborator status on the Star-Power app page to run the bot
 
    a. Make sure you do this before trying to the next steps, or else you may be confused by ngrok receiving the slack events but the bot isn't working.
 
-5. Use [Ngrok](https://ngrok.com/) to set up localhost tunnel
+5. Use [Ngrok](https://ngrok.com/) to set TWO localhost tunnels
 
-   a. Syntax: `ngrok http { desired port number }`
+   a. `ngrok http { desired port number }`
    
-6. Take the HTTPS forwarding address and change the Request URL on the [Slack Event Subscriptions page](https://api.slack.com/apps/A01SB6HNPCZ/event-subscriptions?)
+   B. `ngrok http { different desired port number }`
+   
+6. Take the firt HTTPS forwarding address and change the Request URL on the [Slack Event Subscriptions page](https://api.slack.com/apps/A01SB6HNPCZ/event-subscriptions?)
 
    a. Make sure you append /slack/events to the end of the forwarding address
    
    b. Also make sure Slack can verify the link
+   
+7. Take the second HTTPS forwards address and change the request URL for Slack's [interactivity and Shortcuts page](https://api.slack.com/apps/A01SB6HNPCZ/interactive-messages?)
+   
+   a. Make sure you append /interactive-endpoint to the end of the forwarding address
    
 ## Reward Ideas
 
