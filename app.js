@@ -78,7 +78,11 @@ slackEvents.on("message", async (event) => {
 				return;
 			}
 			// the 2nd condition checks for if the message is in a thread. It's a little wonky, but the event object doesn't have any other information to use.
-			if (!message.includes(emoji) && event.parent_user_id === undefined) {
+			if (
+				!message.includes(emoji) &&
+				event.parent_user_id === undefined &&
+				event.channel !== "C01SDRQFE7Q"
+			) {
 				slackClient.chat.postEphemeral({
 					channel: event.channel,
 					user: event.user,
