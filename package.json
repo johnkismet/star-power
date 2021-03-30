@@ -20,6 +20,7 @@
 	"homepage": "https://github.com/johnkismet/star-power#readme",
 	"dependencies": {
 		"@slack/events-api": "^3.0.0",
+		"@slack/interactive-messages": "^2.0.1",
 		"@slack/web-api": "^6.1.0",
 		"dotenv": "^8.2.0",
 		"esm": "^3.2.25",

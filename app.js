@@ -12,10 +12,13 @@ import { greetNewUser, postEphemeralMsg } from "./functions";
 
 const { WebClient } = require("@slack/web-api");
 const { createEventAdapter } = require("@slack/events-api");
+const { createMessageAdapter } = require("@slack/interactive-messages");
+
 const port = 3000;
 export const emoji = ":star-power:";
 const prefix = "!";
 const slackEvents = createEventAdapter(process.env.SIGNING_SECRET);
+const slackInteractions = createMessageAdapter(process.env.SIGNING_SECRET);
 export const slackClient = new WebClient(process.env.SLACK_TOKEN);
 console.log(slackClient.users.identity);
 
@@ -57,36 +60,73 @@ slackEvents.on("message", async (event) => {
 			handleCommand("!reminder", slackClient, event);
 		}
 	});
-
-	setTimeout(() => {
-		switch (event.channel_type) {
-			case "im":
-				if (message[0] === prefix) {
-					handleCommand(message, slackClient, event);
-					return;
-				} else {
-					handleCommand("!help", slackClient, event);
-				}
-				break;
-			case "channel":
-				// This is the cheap way to make it so staff can get infinite stars to dole out since they don't participate in the reward system
-				if (message === "!motherlode") {
-					handleCommand(message, slackClient, event);
-					return;
-				}
-				// the 2nd condition checks for if the message is in a thread. It's a little wonky, but the event object doesn't have any other information to use.
-				if (!message.includes(emoji) && event.parent_user_id === undefined) {
-					postEphemeralMsg(
-						"Did you mean to include the star-power emoji in this message? \n If you want to give the people you mentioned a star please copy/paste your message and add the star-power emoji in it :) \n Otherwise ignore this message",
-						event
-					);
-					return;
-				} else if (message.includes(emoji)) {
-					handleMessage(event);
-				}
-				break;
-		}
-	}, 1000);
+	switch (event.channel_type) {
+		case "im":
+			if (message[0] === prefix) {
+				handleCommand(message, slackClient, event);
+				return;
+			} else {
+				handleCommand("!help", slackClient, event);
+			}
+			break;
+		case "channel":
+			// This is the cheap way to make it so staff can get infinite stars to dole out since they don't participate in the reward system
+			if (message === "!motherlode") {
+				handleCommand(message, slackClient, event);
+				return;
+			}
+			// the 2nd condition checks for if the message is in a thread. It's a little wonky, but the event object doesn't have any other information to use.
+			if (!message.includes(emoji) && event.parent_user_id === undefined) {
+				slackClient.chat.postEphemeral({
+					channel: event.channel,
+					user: event.user,
+					blocks: [
+						{
+							type: "section",
+							text: {
+								type: "mrkdwn",
+								text:
+									"I noticed you didn't include the Star-Power emoji in your message! Would you like me to send one star to the user(s) you mentioned?",
+							},
+						},
+						{
+							type: "actions",
+							elements: [
+								{
+									type: "button",
+									text: {
+										type: "plain_text",
+										text: "Yes, send one",
+										emoji: true,
+									},
+									value: "yes",
+									action_id: "yes-1",
+								},
+							],
+						},
+						{
+							type: "actions",
+							elements: [
+								{
+									type: "button",
+									text: {
+										type: "plain_text",
+										text: "No, carry on",
+										emoji: true,
+									},
+									value: "no",
+									action_id: "no-0",
+								},
+							],
+						},
+					],
+				});
+				return;
+			} else if (message.includes(emoji)) {
+				handleMessage(event);
+			}
+			break;
+	}
 });
 
 slackEvents.on("reaction_added", (event) => {
@@ -117,9 +157,43 @@ slackEvents.on("reaction_removed", (event) => {
 	}
 });
 
-slackEvents.on("error", console.error);
+slackInteractions.action({ type: "button" }, (payload, respond) => {
+	// Logs the contents of the action to the console
+	const buttonResponse = payload.actions[0].action_id;
 
+	if (buttonResponse === "no-0") {
+		respond({ text: "Cool, just checking!" });
+	} else if (buttonResponse === "yes-1") {
+		console.log(payload);
+		respond({
+			text:
+				"Great, I've sent 1 star. Next time please include the amount of star-power emoji's that you want to send in your message :) ",
+		});
+	}
+
+	// Send an additional message to the whole channel
+	// doWork()
+	//   .then(() => {
+	//   })
+	//   .catch((error) => {
+	// 	respond({ text: 'Sorry, there\'s been an error. Try again later.' });
+	//   });
+
+	// If you'd like to replace the original message, use `chat.update`.
+	// Not returning any value.
+});
+
+slackEvents.on("error", console.error);
 slackEvents.start(process.env.PORT || port).then(() => {
 	console.log(`Server started on port ${port}!`);
 	connectToMongo();
 });
+
+const interactivePort = 8080;
+(async () => {
+	// Start the built-in server
+	const server = await slackInteractions.start(interactivePort);
+
+	// Log a message when the server is ready
+	console.log(`Listening for events on ${server.address().port}`);
+})();
