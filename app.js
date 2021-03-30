@@ -78,6 +78,9 @@ slackEvents.on("message", async (event) => {
 				return;
 			}
 			// the 2nd condition checks for if the message is in a thread. It's a little wonky, but the event object doesn't have any other information to use.
+			// if message doesn't include the emoji
+			// if message isn't in a thread
+			// if message isn't in facilitator channel
 			if (
 				!message.includes(emoji) &&
 				event.parent_user_id === undefined &&
@@ -165,7 +168,6 @@ slackEvents.on("reaction_removed", (event) => {
 });
 
 slackInteractions.action({ type: "button" }, async (payload, respond) => {
-	// Logs the contents of the action to the console
 	const buttonResponse = payload.actions[0].action_id;
 
 	if (buttonResponse === "no-0") {
@@ -185,7 +187,7 @@ slackInteractions.action({ type: "button" }, async (payload, respond) => {
 		(async () => {
 			let userInfo = await getUserInfo(payload.user.id);
 			let message = await fetchMessage(userInfo.id, userInfo.ts);
-			message += ":star-power:";
+			message += emoji;
 			let info = {
 				text: message,
 				user: payload.user.id,
@@ -199,17 +201,6 @@ slackInteractions.action({ type: "button" }, async (payload, respond) => {
 				"Great, I've sent 1 star. Next time please include the amount of star-power emoji's that you want to send in your message :) ",
 		});
 	}
-
-	// Send an additional message to the whole channel
-	// doWork()
-	//   .then(() => {
-	//   })
-	//   .catch((error) => {
-	// 	respond({ text: 'Sorry, there\'s been an error. Try again later.' });
-	//   });
-
-	// If you'd like to replace the original message, use `chat.update`.
-	// Not returning any value.
 });
 
 slackEvents.on("error", console.error);
