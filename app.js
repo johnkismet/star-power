@@ -5,10 +5,12 @@ import {
 	checkIfUser,
 	giveStars,
 	takeStars,
+	setLatestTimestamp,
+	getUserInfo,
 } from "./backend/main";
 
 import { handleMessage, handleCommand } from "./handleFunction";
-import { greetNewUser, postEphemeralMsg } from "./functions";
+import { greetNewUser, postEphemeralMsg, fetchMessage } from "./functions";
 
 const { WebClient } = require("@slack/web-api");
 const { createEventAdapter } = require("@slack/events-api");
@@ -121,6 +123,7 @@ slackEvents.on("message", async (event) => {
 						},
 					],
 				});
+				setLatestTimestamp(event);
 				return;
 			} else if (message.includes(emoji)) {
 				handleMessage(event);
@@ -157,14 +160,36 @@ slackEvents.on("reaction_removed", (event) => {
 	}
 });
 
-slackInteractions.action({ type: "button" }, (payload, respond) => {
+slackInteractions.action({ type: "button" }, async (payload, respond) => {
 	// Logs the contents of the action to the console
 	const buttonResponse = payload.actions[0].action_id;
 
 	if (buttonResponse === "no-0") {
 		respond({ text: "Cool, just checking!" });
 	} else if (buttonResponse === "yes-1") {
-		console.log(payload);
+		/*
+		1. Get users latestTs object info
+		2. Invoke fetchMessage to get the text (and users mentioned)
+		3. Make an object  {
+			text: text,
+			user: user,
+			channel: channel,
+		}
+		4. Invoke handleMessage with that object replacing the event
+		*/
+
+		(async () => {
+			let userInfo = await getUserInfo(payload.user.id);
+			let message = await fetchMessage(userInfo.id, userInfo.ts);
+			message += ":star-power:";
+			let info = {
+				text: message,
+				user: payload.user.id,
+				channel: payload.container.channel_id,
+			};
+			handleMessage(info);
+		})();
+
 		respond({
 			text:
 				"Great, I've sent 1 star. Next time please include the amount of star-power emoji's that you want to send in your message :) ",

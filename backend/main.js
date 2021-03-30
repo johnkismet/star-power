@@ -183,3 +183,25 @@ export async function motherlode(username) {
 		console.log(err);
 	}
 }
+export function setLatestTimestamp({ user, ts, channel }) {
+	try {
+		User.findOne({ username: user }, (err, user) => {
+			user.latestTs = {
+				ts: ts,
+				id: channel,
+			};
+			user.save();
+		});
+	} catch (err) {
+		console.log(err);
+	}
+}
+
+export async function getUserInfo(username) {
+	try {
+		const user = await User.findOne({ username: username });
+		return user.latestTs;
+	} catch (err) {
+		console.log(err);
+	}
+}

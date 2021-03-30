@@ -7,5 +7,6 @@ const userSchema = new mongoose.Schema({
 	lifetimeStars: Number,
 	lifetimeGiven: Number,
 	needsReminder: Boolean,
+	latestTs: Object,
 });
 export const User = mongoose.model("User", userSchema);

@@ -129,3 +129,25 @@ export async function checkUsersMentioned(usersMentioned, event) {
 		await checkIfUser(user);
 	}
 }
+
+export async function fetchMessage(id, ts) {
+	try {
+		// Call the conversations.history method using the built-in WebClient
+		const result = await slackClient.conversations.history({
+			// The token you used to initialize your app
+			channel: id,
+			// In a more realistic app, you may store ts data in a db
+			latest: ts,
+			// Limit results
+			inclusive: true,
+			limit: 1,
+		});
+
+		// There should only be one result (stored in the zeroth index)
+		let message = result.messages[0];
+		// Print message text
+		return message.text;
+	} catch (error) {
+		console.error(error);
+	}
+}
