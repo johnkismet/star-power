@@ -46,21 +46,34 @@ Users can also react on any message with :star-power: to give a freebie star to 
 
 For local development:
 
+You will need collaborator status on the Star-Power app page to run the bot
+
 1. Clone this repo
 
-2. NPM install while inside the repo directory
+2. Run `npm install` while inside the repo directory
 
 3. Set up enviroment variables. Must have MONGO_URI, SIGNING_SECRET, and SLACK_TOKEN
 
 4. `npm run dev` to start nodemon development
+
    a. Make sure you do this before trying to the next steps, or else you may be confused by ngrok receiving the slack events but the bot isn't working.
 
-5. Use [Ngrok](https://ngrok.com/) to set up localhost tunnel
-   a. Syntax: ngrok http { desired port number }
-6. Take the HTTPS forwarding address and change the Request URL on the [Slack Event Subscriptions page](https://api.slack.com/apps/A01SB6HNPCZ/event-subscriptions?)
-   a. Make sure you append /slack/events to the end of the forwarding address
-   b. Also make sure Slack can verify the link
+5. Use [Ngrok](https://ngrok.com/) to set TWO localhost tunnels
 
+   a. `ngrok http { desired port number }`
+   
+   B. `ngrok http { different desired port number }`
+   
+6. Take the firt HTTPS forwarding address and change the Request URL on the [Slack Event Subscriptions page](https://api.slack.com/apps/A01SB6HNPCZ/event-subscriptions?)
+
+   a. Make sure you append /slack/events to the end of the forwarding address
+   
+   b. Also make sure Slack can verify the link
+   
+7. Take the second HTTPS forwards address and change the request URL for Slack's [interactivity and Shortcuts page](https://api.slack.com/apps/A01SB6HNPCZ/interactive-messages?)
+   
+   a. Make sure you append /interactive-endpoint to the end of the forwarding address
+   
 ## Reward Ideas
 
 If you have an idea you'd like to contribute DM John Anderson on Slack!
