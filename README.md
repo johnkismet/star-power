@@ -60,9 +60,9 @@ You will need collaborator status on the Star-Power app page to run the bot
 
 5. Use [Ngrok](https://ngrok.com/) to set TWO localhost tunnels
 
-   a. `ngrok http { desired port number }`
+   a. `ngrok http { desired port number } default is 3000`
    
-   B. `ngrok http { different desired port number }`
+   b. `ngrok http { different desired port number } default is 8080`
    
 6. Take the firt HTTPS forwarding address and change the Request URL on the [Slack Event Subscriptions page](https://api.slack.com/apps/A01SB6HNPCZ/event-subscriptions?)
 
