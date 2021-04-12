@@ -55,6 +55,7 @@ export async function checkIfUser(username) {
 				lifetimeStars: defaultStars,
 				lifetimeGiven: 0,
 				needsReminder: true,
+				latestTs: 0,
 			});
 			console.log("NEW USER");
 			return "NEW_USER";

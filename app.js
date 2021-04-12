@@ -62,81 +62,83 @@ slackEvents.on("message", async (event) => {
 			handleCommand("!reminder", slackClient, event);
 		}
 	});
-	switch (event.channel_type) {
-		case "im":
-			if (message[0] === prefix) {
-				handleCommand(message, slackClient, event);
-				return;
-			} else {
-				handleCommand("!help", slackClient, event);
-			}
-			break;
-		case "channel":
-			// This is the cheap way to make it so staff can get infinite stars to dole out since they don't participate in the reward system
-			if (message === "!motherlode") {
-				handleCommand(message, slackClient, event);
-				return;
-			}
-			// the 2nd condition checks for if the message is in a thread. It's a little wonky, but the event object doesn't have any other information to use.
-			// if message doesn't include the emoji
-			// if message isn't in a thread
-			// if message isn't in facilitator channel
-			if (
-				!message.includes(emoji) &&
-				event.parent_user_id === undefined &&
-				event.channel !== "C01SDRQFE7Q"
-			) {
-				slackClient.chat.postEphemeral({
-					channel: event.channel,
-					user: event.user,
-					blocks: [
-						{
-							type: "section",
-							text: {
-								type: "mrkdwn",
-								text:
-									"I noticed you didn't include the Star-Power emoji in your message! Would you like me to send one star to the user(s) you mentioned?",
+	setTimeout(() => {
+		switch (event.channel_type) {
+			case "im":
+				if (message[0] === prefix) {
+					handleCommand(message, slackClient, event);
+					return;
+				} else {
+					handleCommand("!help", slackClient, event);
+				}
+				break;
+			case "channel":
+				// This is the cheap way to make it so staff can get infinite stars to dole out since they don't participate in the reward system
+				if (message === "!motherlode") {
+					handleCommand(message, slackClient, event);
+					return;
+				}
+				// the 2nd condition checks for if the message is in a thread. It's a little wonky, but the event object doesn't have any other information to use.
+				// if message doesn't include the emoji
+				// if message isn't in a thread
+				// if message isn't in facilitator channel
+				if (
+					!message.includes(emoji) &&
+					event.parent_user_id === undefined &&
+					event.channel !== "C01SDRQFE7Q"
+				) {
+					slackClient.chat.postEphemeral({
+						channel: event.channel,
+						user: event.user,
+						blocks: [
+							{
+								type: "section",
+								text: {
+									type: "mrkdwn",
+									text:
+										"I noticed you didn't include the Star-Power emoji in your message! Would you like me to send one star to the user(s) you mentioned?",
+								},
 							},
-						},
-						{
-							type: "actions",
-							elements: [
-								{
-									type: "button",
-									text: {
-										type: "plain_text",
-										text: "Yes, send one",
-										emoji: true,
+							{
+								type: "actions",
+								elements: [
+									{
+										type: "button",
+										text: {
+											type: "plain_text",
+											text: "Yes, send one",
+											emoji: true,
+										},
+										value: "yes",
+										action_id: "yes-1",
 									},
-									value: "yes",
-									action_id: "yes-1",
-								},
-							],
-						},
-						{
-							type: "actions",
-							elements: [
-								{
-									type: "button",
-									text: {
-										type: "plain_text",
-										text: "No, carry on",
-										emoji: true,
+								],
+							},
+							{
+								type: "actions",
+								elements: [
+									{
+										type: "button",
+										text: {
+											type: "plain_text",
+											text: "No, carry on",
+											emoji: true,
+										},
+										value: "no",
+										action_id: "no-0",
 									},
-									value: "no",
-									action_id: "no-0",
-								},
-							],
-						},
-					],
-				});
-				setLatestTimestamp(event);
-				return;
-			} else if (message.includes(emoji)) {
-				handleMessage(event);
-			}
-			break;
-	}
+								],
+							},
+						],
+					});
+					setLatestTimestamp(event);
+					return;
+				} else if (message.includes(emoji)) {
+					handleMessage(event);
+				}
+				break;
+		}
+	}, 1000);
 });
 
 slackEvents.on("reaction_added", (event) => {
