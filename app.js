@@ -38,21 +38,21 @@ slackEvents.on("message", async (event) => {
 	*/
 	let message = event.text;
 	let sender = event.user;
-	// console.log(event);
-	if (
-		event.subtype === "message_changed" ||
-		event.subtype === "message_deleted" ||
-		event.subtype === "bot_message" ||
-		event.subtype === "channel_archive" ||
-		event.subtype === "channel_join" ||
-		event.subtype === "channel_leave" ||
-		event.subtype === "channel_name" ||
-		event.subtype === "channel_topic" ||
-		event.subtype === "channel_unarchive" ||
-		event.subtype === "file_mention" ||
-		event.subtype === "channel_posting_permissions"
-	)
-		return;
+
+	let uninterestingEvents = {
+		message_changed: true,
+		message_deleted: true,
+		bot_message: true,
+		channel_archive: true,
+		channel_join: true,
+		channel_leave: true,
+		channel_name: true,
+		channel_topic: true,
+		channel_unarchive: true,
+		file_mention: true,
+		channel_posting_permissions: true,
+	};
+	if (event.subtype in uninterestingEvents) return;
 
 	checkIfUser(sender).then((result) => {
 		if (result === "NEW_USER") {
