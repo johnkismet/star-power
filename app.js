@@ -75,6 +75,8 @@ slackEvents.on("message", async (event) => {
 					event.parent_user_id === undefined &&
 					event.channel !== "C01SDRQFE7Q"
 				) {
+					let usersMentioned = message.match(/@\w+/gm);
+					if (!usersMentioned) return;
 					slackClient.chat.postEphemeral({
 						channel: event.channel,
 						user: event.user,
